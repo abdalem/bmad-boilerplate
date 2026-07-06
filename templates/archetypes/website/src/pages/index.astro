@@ -1,0 +1,30 @@
+---
+import Layout from '../components/Layout.astro';
+import { site } from '../data/site';
+---
+
+<Layout title={site.name} description={site.description}>
+  <section class="hero">
+    <p class="eyebrow">New product foundation</p>
+    <h1>{site.name}</h1>
+    <p>
+      Replace this placeholder with the sharpest landing promise from the approved project brief.
+    </p>
+    <a class="button" href="#contact">Start the conversation</a>
+  </section>
+
+  <section id="problem" class="panel">
+    <h2>Problem</h2>
+    <p>State the painful, frequent, expensive problem your product solves.</p>
+  </section>
+
+  <section id="solution" class="panel">
+    <h2>Solution</h2>
+    <p>Describe the smallest credible promise that makes the product worth trying.</p>
+  </section>
+
+  <section id="contact" class="panel">
+    <h2>Contact</h2>
+    <p>Add the first conversion path: waitlist, consultation, demo, or purchase.</p>
+  </section>
+</Layout>

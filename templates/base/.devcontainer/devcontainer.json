@@ -1,0 +1,35 @@
+{
+  "name": "__PROJECT_NAME__",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/__PROJECT_SLUG__",
+  "shutdownAction": "stopCompose",
+  "mounts": ["type=bind,source=${USERPROFILE:-$HOME}/.ssh,target=/home/node/.ssh,readonly"],
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "24"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/skriptfabrik/devcontainer-features/infisical-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["biomejs.biome", "ms-azuretools.vscode-docker", "GitHub.copilot"],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "biomejs.biome",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.biome": "explicit"
+        }
+      }
+    }
+  },
+  "initializeCommand": "./.devcontainer/bootstrap-traefik.sh",
+  "postCreateCommand": "./.devcontainer/setup.sh",
+  "postStartCommand": "corepack enable",
+  "forwardPorts": [80, 8080, 3000, 3333],
+  "runArgs": ["--init"],
+  "remoteUser": "node"
+}

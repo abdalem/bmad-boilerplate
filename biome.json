@@ -1,0 +1,71 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": true,
+    "includes": [
+      "**",
+      "!**/node_modules/**",
+      "!**/.next/**",
+      "!**/.build/**",
+      "!**/.turbo/**",
+      "!**/.pnpm-cache/**",
+      "!**/.pnpm-store/**",
+      "!**/dist/**",
+      "!**/build/**",
+      "!**/.terraform/**",
+      "!**/coverage/**",
+      "!**/*.min.js",
+      "!**/*.min.css",
+      "!**/pnpm-lock.yaml",
+      "!templates/**"
+    ]
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "off"
+      }
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "complexity": {
+        "noForEach": "off"
+      },
+      "correctness": {
+        "noUnusedVariables": "off"
+      },
+      "suspicious": {
+        "noExplicitAny": "off"
+      }
+    }
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "trailingCommas": "all",
+      "arrowParentheses": "asNeeded",
+      "semicolons": "always",
+      "bracketSpacing": true,
+      "quoteProperties": "preserve"
+    }
+  },
+  "json": {
+    "formatter": {
+      "trailingCommas": "none"
+    }
+  }
+}

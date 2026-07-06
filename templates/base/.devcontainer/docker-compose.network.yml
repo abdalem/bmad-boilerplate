@@ -1,0 +1,18 @@
+networks:
+  app_network:
+    external: true
+    name: devcontainer_proxy
+
+services:
+  reverse-proxy:
+    container_name: dev-shared-traefik
+    image: traefik:v3.6.2
+    command: --api.insecure=true --providers.docker --log.level=DEBUG
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - app_network
+    restart: unless-stopped

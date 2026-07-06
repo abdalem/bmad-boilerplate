@@ -1,0 +1,36 @@
+{
+  "name": "__PACKAGE_NAME__",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "biome check .",
+    "check:ts": "tsc -p tsconfig.json --noEmit",
+    "check": "pnpm check:ts && biome check .",
+    "check:fix": "biome check --write .",
+    "test": "pnpm check:ts",
+    "bmad:install": "scripts/install-bmad.sh",
+    "bmad:status": "test -d _bmad || test -d _bmad-core || test -d .bmad-core"
+  },
+  "dependencies": {
+    "next": "^15.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.0.6",
+    "@types/node": "^22.15.18",
+    "@types/react": "^19.2.4",
+    "@types/react-dom": "^19.2.3",
+    "husky": "^8.0.3",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "pnpm": ">=10",
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.26.0"
+}

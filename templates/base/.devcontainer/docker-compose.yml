@@ -1,0 +1,35 @@
+volumes:
+  node_user_data:
+
+networks:
+  app_network:
+    external: true
+    name: devcontainer_proxy
+
+services:
+  app:
+    build:
+      context: ../
+      dockerfile: ./.devcontainer/Dockerfile
+    volumes:
+      - node_user_data:/home/node
+      - ../:/workspaces/__PROJECT_SLUG__:cached
+      - ../node_modules:/workspaces/__PROJECT_SLUG__/node_modules:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      NODE_ENV: development
+      PROJECT_NAME: ${PROJECT_NAME:-__PROJECT_SLUG__}
+      PROJECT_SLUG: ${PROJECT_SLUG:-__PROJECT_SLUG__}
+      PROJECT_DOMAIN: ${PROJECT_DOMAIN:-__PROJECT_SLUG__.localhost}
+      INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com/api}
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=devcontainer_proxy
+      - traefik.http.routers.__PROJECT_SLUG__-web-router.rule=Host(`${PROJECT_DOMAIN:-__PROJECT_SLUG__.localhost}`)
+      - traefik.http.routers.__PROJECT_SLUG__-web-router.service=__PROJECT_SLUG__-web-service
+      - traefik.http.services.__PROJECT_SLUG__-web-service.loadbalancer.server.port=3000
+      - traefik.http.routers.__PROJECT_SLUG__-api-router.rule=Host(`api.${PROJECT_DOMAIN:-__PROJECT_SLUG__.localhost}`)
+      - traefik.http.routers.__PROJECT_SLUG__-api-router.service=__PROJECT_SLUG__-api-service
+      - traefik.http.services.__PROJECT_SLUG__-api-service.loadbalancer.server.port=3333
+    networks:
+      - app_network

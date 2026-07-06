@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ticket Refinement"
+  short_description: "Refine tickets before implementation"
+  default_prompt: "Use $ticket-refinement to refine one project ticket by number before implementation."

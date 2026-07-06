@@ -1,0 +1,35 @@
+volumes:
+  node_user_data:
+
+networks:
+  app_network:
+    external: true
+    name: devcontainer_proxy
+
+services:
+  app:
+    build:
+      context: ../
+      dockerfile: ./.devcontainer/Dockerfile
+    volumes:
+      - node_user_data:/home/node
+      - ../:/workspaces/boilerplate:cached
+      - ../node_modules:/workspaces/boilerplate/node_modules:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      NODE_ENV: development
+      PROJECT_NAME: ${PROJECT_NAME:-boilerplate}
+      PROJECT_SLUG: ${PROJECT_SLUG:-boilerplate}
+      PROJECT_DOMAIN: ${PROJECT_DOMAIN:-boilerplate.localhost}
+      INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com/api}
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=devcontainer_proxy
+      - traefik.http.routers.boilerplate-web-router.rule=Host(`${PROJECT_DOMAIN:-boilerplate.localhost}`)
+      - traefik.http.routers.boilerplate-web-router.service=boilerplate-web-service
+      - traefik.http.services.boilerplate-web-service.loadbalancer.server.port=3000
+      - traefik.http.routers.boilerplate-api-router.rule=Host(`api.${PROJECT_DOMAIN:-boilerplate.localhost}`)
+      - traefik.http.routers.boilerplate-api-router.service=boilerplate-api-service
+      - traefik.http.services.boilerplate-api-service.loadbalancer.server.port=3333
+    networks:
+      - app_network

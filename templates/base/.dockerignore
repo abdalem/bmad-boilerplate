@@ -1,0 +1,16 @@
+.git
+.github
+.devcontainer
+.agents
+.codex
+node_modules
+**/node_modules
+.pnpm-store
+**/.pnpm-cache
+**/.turbo
+**/.next
+**/dist
+**/build
+*.log
+.env
+.env.*

@@ -1,0 +1,36 @@
+{
+  "name": "__PACKAGE_NAME__",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "lint": "biome check .",
+    "check:ts": "astro check && tsc --noEmit",
+    "check": "astro check && tsc --noEmit",
+    "check:fix": "biome check --write .",
+    "test": "pnpm check",
+    "bmad:install": "scripts/install-bmad.sh",
+    "bmad:status": "test -d _bmad || test -d _bmad-core || test -d .bmad-core"
+  },
+  "dependencies": {
+    "@astrojs/react": "^5.0.7",
+    "astro": "^6.4.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.0.6",
+    "@astrojs/check": "^0.9.9",
+    "@types/react": "^19.2.4",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "pnpm": ">=10",
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.26.0"
+}

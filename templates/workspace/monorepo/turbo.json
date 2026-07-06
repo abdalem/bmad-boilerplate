@@ -1,0 +1,28 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["biome.json"],
+  "tasks": {
+    "lint": {
+      "dependsOn": ["^lint"],
+      "outputs": []
+    },
+    "check:ts": {
+      "dependsOn": ["^check:ts"],
+      "cache": true,
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**", "build/**"]
+    },
+    "dev": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

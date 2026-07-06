@@ -1,0 +1,57 @@
+# dependencies
+node_modules
+.pnpm-store
+.yarn-cache
+.pnp
+.pnp.js
+**/.pnpm-cache
+
+# testing
+coverage
+
+# builds
+.next/
+out/
+.build
+dist/
+.data
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# local env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env
+!.devcontainer/.env
+
+# turbo
+.turbo
+.swc
+
+*.tsbuildinfo
+.DS_STORE
+tmp
+
+# terraform
+.terraform/
+**/.terraform/**
+*.tfstate
+*.tfstate.*
+
+# app artifacts
+**/cypress/videos
+**/cypress/screenshots
+**/cypress/downloads
+
+# local tools
+scripts/ignored

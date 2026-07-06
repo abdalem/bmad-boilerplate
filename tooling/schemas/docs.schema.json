@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["docs"],
+  "properties": {
+    "docs": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "object",
+        "required": ["path", "markdown"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^docs/.+\\.md$"
+          },
+          "markdown": {
+            "type": "string",
+            "minLength": 10
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
