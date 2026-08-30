@@ -1,0 +1,31 @@
+{
+	"version": "2.1.0",
+	"bmad": {
+		"defaultInstaller": "bmad-method@latest",
+		"previewInstaller": "bmad-method@next",
+		"modules": ["bmm", "tea", "cis", "wds"],
+		"tools": ["claude-code", "codex"]
+	},
+	"externalSkills": [
+		{ "source": "vercel-labs/skills", "skill": "find-skills" },
+		{ "source": "github/awesome-copilot", "skill": "refactor" },
+		{
+			"source": "vercel-labs/agent-skills",
+			"skill": "vercel-composition-patterns"
+		},
+		{
+			"source": "vercel-labs/agent-skills",
+			"skill": "vercel-react-best-practices"
+		},
+		{ "source": "vercel-labs/agent-skills", "skill": "web-design-guidelines" }
+	],
+	"internalSkills": [
+		"bmad-start-project",
+		"bmad-update-project",
+		"bmad-workflow-setup",
+		"bmad-publish-work-item",
+		"bmad-close-work-item",
+		"bmad-review-verification-gap",
+		"update-business-release-notes"
+	]
+}

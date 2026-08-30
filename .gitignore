@@ -8,6 +8,8 @@ node_modules
 
 # testing
 coverage
+__pycache__/
+*.pyc
 
 # builds
 .next/
@@ -55,3 +57,11 @@ tmp
 
 # local tools
 scripts/ignored
+
+# upstream-managed agent and BMAD dependencies
+.agents/
+.claude/
+_bmad/*
+!_bmad/custom/
+_bmad/custom/*
+!_bmad/custom/project-workflow.toml

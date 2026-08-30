@@ -1,49 +1,55 @@
 # Boilerplate
 
-Ready-to-run BMAD stack starter.
+Ready-to-run technical starter with agent-guided product inception, repository
+upgrades, and adaptive BMAD delivery.
 
-BMAD owns product discovery, PRDs, architecture, stories, and workflow guidance.
-This repo owns the technical foundation: devcontainer, templates, stack
-conventions, and deployment recipes.
+Choose one procedure:
 
-## Choose Your Path
+- [Start a new project](docs/new-project.md)
+- [Adopt an existing repository](docs/existing-repo.md)
 
-- Starting a new project: read [docs/new-project.md](docs/new-project.md).
-- Adapting an existing repo: read [docs/existing-repo.md](docs/existing-repo.md).
+The boilerplate owns the devcontainer, Next.js, AdonisJS, Expo, Astro + React,
+monorepo composition, and package-scoped deployments. BMAD owns discovery,
+planning, architecture, work items, implementation routing, and closeout.
 
-## Shortcuts
+Use one entry skill:
 
-Requires Node `>=20` because this repo and BMAD both require modern Node. If
-you are temporarily on Node 18, use the scripts directly or run with
-`npm_config_engine_strict=false`.
+- New boilerplate clone: `bmad-start-project`.
+- Existing repository comparison or modernization: `bmad-update-project`.
+- Established project ticket work: `bmad-publish-work-item`.
+
+For product definition in ChatGPT or Claude web sessions, use the managed
+[product prompt](docs/bmad-project-workflow/prompts/product-definition.md) and
+optional [independent review prompt](docs/bmad-project-workflow/prompts/independent-review.md).
+
+## Main Commands
 
 ```bash
 pnpm bmad:install
 pnpm bmad:install:stable
-pnpm adopt:repo -- /home/abdalem/projects/existing-repo
-pnpm adopt:repo:dry -- /home/abdalem/projects/existing-repo
-pnpm adopt:repo:force -- /home/abdalem/projects/existing-repo
+pnpm bmad:install:preview
+pnpm bmad:validate
+pnpm adopt:repo:dry -- /path/to/repository
+pnpm adopt:repo -- /path/to/repository
 ```
 
-## Stack Archetypes
+Runtime: Node `>=22.20`, pnpm `>=10`. The devcontainer uses Node 24 and includes
+`uv`, Docker CLI, GitHub CLI, Infisical, and Terraform without hosted Dev
+Container Features. Chrome DevTools MCP is preconfigured for Codex and Claude
+Code through a dedicated host browser profile.
 
-- `web-app`: Next.js application.
-- `api`: AdonisJS API.
-- `mobile`: Expo mobile app.
-- `website`: Astro + React website or landing page.
+## Archetypes
 
-Shortcut presets:
+Single selection creates a standalone repo; multiple selections create a
+monorepo.
 
-- `web-api`
-- `web-api-mobile`
-- `website-api`
-- `full-product`
+- `web-app`: Next.js
+- `api`: AdonisJS
+- `mobile`: Expo
+- `website`: Astro + React
 
-## Development
+Presets: `web-api`, `web-api-mobile`, `website-api`, `full-product`.
 
-```bash
-corepack enable
-pnpm install
-pnpm check
-pnpm test:unit
-```
+The project skills select and invoke these technical commands after confirming
+the intended changes. See `docs/bmad-project-workflow/` for the full scenarios
+and `docs/bmad-work-item-workflow/` for ordinary delivery.

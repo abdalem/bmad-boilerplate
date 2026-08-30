@@ -7,7 +7,9 @@ FORCE=0
 DRY_RUN=0
 SKIP_BMAD=0
 BMAD_TOOLS="${BMAD_TOOLS:-claude-code,codex}"
-BMAD_MODULES="${BMAD_MODULES:-bmm}"
+BMAD_MODULES="${BMAD_MODULES:-bmm,tea,cis,wds}"
+INTERNAL_SKILLS="bmad-start-project, bmad-update-project, bmad-workflow-setup, bmad-publish-work-item, bmad-close-work-item, bmad-review-verification-gap, update-business-release-notes"
+PACK_RESULT='{}'
 
 usage() {
   cat <<'USAGE'
@@ -20,7 +22,7 @@ Options:
   --dry-run            Show what would happen without writing files.
   --skip-bmad          Do not attempt BMAD installation now.
   --bmad-tools <ids>   Comma-separated BMAD tools. Defaults to claude-code,codex.
-  --bmad-modules <ids> Comma-separated BMAD modules. Defaults to bmm.
+  --bmad-modules <ids> Comma-separated BMAD modules. Defaults to bmm,tea,cis,wds.
   -h, --help           Show this help.
 
 Conflict behavior:
@@ -98,6 +100,21 @@ log() {
   printf '%s\n' "$*"
 }
 
+summarize_pack_result() {
+  PACK_RESULT_JSON="${PACK_RESULT}" node - <<'NODE'
+const result = JSON.parse(process.env.PACK_RESULT_JSON || '{}');
+for (const key of ['copied', 'updated', 'unchanged', 'removed', 'proposed', 'retirementProposed', 'backedUp']) {
+  console.log(`- Pack ${key}: ${(result[key] || []).length}`);
+}
+if ((result.proposed || []).length > 0) {
+  for (const path of result.proposed) console.log(`- Pack proposed conflict: ${path}`);
+}
+if ((result.retirementProposed || []).length > 0) {
+  for (const path of result.retirementProposed) console.log(`- Pack retirement conflict: ${path}`);
+}
+NODE
+}
+
 write_file() {
   local rel_path="$1"
   local source_path="$2"
@@ -106,9 +123,14 @@ write_file() {
   local backup_path="${BACKUP_DIR}/${rel_path}"
 
   if [[ "${DRY_RUN}" -eq 1 ]]; then
-    if [[ -f "${target_path}" ]]; then
-      log "would inspect ${rel_path}"
+    if [[ -f "${target_path}" ]] && cmp -s "${source_path}" "${target_path}"; then
+      UNCHANGED+=("${rel_path}")
+      log "unchanged ${rel_path}"
+    elif [[ -e "${target_path}" ]]; then
+      PROPOSED+=("${rel_path}")
+      log "would propose ${rel_path}"
     else
+      COPIED+=("${rel_path}")
       log "would copy ${rel_path}"
     fi
     return
@@ -174,12 +196,15 @@ const pkg = fs.existsSync(packagePath)
   : { name: fallbackName, private: true };
 
 pkg.scripts ??= {};
-pkg.scripts['bmad:install'] ??= 'scripts/install-bmad.sh';
+pkg.scripts['bmad:install'] = 'scripts/install-bmad.sh';
+pkg.scripts['bmad:install:stable'] = 'scripts/install-bmad.sh';
+pkg.scripts['bmad:install:preview'] = 'BMAD_INSTALLER=bmad-method@next BMAD_CHANNEL=next scripts/install-bmad.sh';
 pkg.scripts['bmad:status'] ??= 'test -d _bmad || test -d _bmad-core || test -d .bmad-core';
+pkg.scripts['bmad:validate'] ??= 'node scripts/bmad-workflow-pack.mjs validate --target . --upstream';
 pkg.scripts['stack:adoption-report'] ??= 'cat .boilerplate/adoption/report.md';
 pkg.packageManager ??= 'pnpm@10.26.0';
 pkg.engines ??= {};
-pkg.engines.node ??= '>=20';
+pkg.engines.node = '>=22.20';
 pkg.engines.pnpm ??= '>=10';
 
 fs.writeFileSync(packagePath, `${JSON.stringify(pkg, null, 2)}\n`);
@@ -188,69 +213,10 @@ NODE
 }
 
 write_stack_docs() {
-  local tmp_dir
-  tmp_dir="$(mktemp -d)"
-
-  cat > "${tmp_dir}/AGENTS.md" <<'EOF'
-# Agent Guidance
-
-Use BMAD as the primary planning and delivery workflow.
-
-Start with `bmad-help` to decide the next action. For existing repos, generate
-project context before planning implementation work. Treat this repo's stack
-docs as implementation guidance for Next.js, AdonisJS, Expo, Astro, deployment,
-and devcontainer conventions.
-EOF
-
-  cat > "${tmp_dir}/CLAUDE.md" <<'EOF'
-# Claude Code Guidance
-
-Use BMAD as the primary project workflow. Start with `bmad-help`.
-
-For existing repos, inspect generated BMAD project context before proposing
-changes. Use `docs/stack/` for this repo's technical conventions.
-EOF
-
-  mkdir -p "${tmp_dir}/docs/stack"
-  cat > "${tmp_dir}/docs/stack/README.md" <<'EOF'
-# Stack Pack
-
-This repo uses BMAD for product discovery, PRDs, architecture, stories, and
-delivery guidance. The local stack pack owns the technical defaults:
-
-- Devcontainer with Node, pnpm, Docker CLI, GitHub CLI, Infisical, and Terraform.
-- Archetypes for Next.js web apps, AdonisJS APIs, Expo mobile apps, and Astro
-  + React websites.
-- Package-scoped deployment guidance for Cloudflare Pages, Vercel, Cloud Run,
-  Railway, GitHub Pages, and AWS App Runner.
-
-Run `bmad-help` to choose the next BMAD workflow.
-EOF
-
-  cat > "${tmp_dir}/docs/stack/existing-repo-adoption.md" <<'EOF'
-# Existing Repo Adoption
-
-This repo was adapted from the boilerplate stack pack.
-
-Recommended order:
-
-1. Review `.boilerplate/adoption/report.md`.
-2. Review any generated files under `.boilerplate/adoption/proposed/`.
-3. Open the repo in its own devcontainer.
-4. Run `pnpm bmad:install` if BMAD was not installed during adoption.
-5. Run `bmad-help`.
-6. Generate BMAD project context before implementation work.
-
-The devcontainer belongs to this repo. Do not work on this repo from a separate
-boilerplate devcontainer.
-EOF
-
-  write_file "AGENTS.md" "${tmp_dir}/AGENTS.md"
-  write_file "CLAUDE.md" "${tmp_dir}/CLAUDE.md"
-  write_file "docs/stack/README.md" "${tmp_dir}/docs/stack/README.md"
-  write_file "docs/stack/existing-repo-adoption.md" "${tmp_dir}/docs/stack/existing-repo-adoption.md"
-
-  rm -rf "${tmp_dir}"
+  write_file "AGENTS.md" "${BOILERPLATE_ROOT}/templates/base/AGENTS.md"
+  write_file "CLAUDE.md" "${BOILERPLATE_ROOT}/templates/base/CLAUDE.md"
+  write_file "docs/stack/README.md" "${BOILERPLATE_ROOT}/templates/base/docs/stack/README.md"
+  write_file "docs/stack/existing-repo-adoption.md" "${BOILERPLATE_ROOT}/templates/base/docs/stack/existing-repo-adoption.md"
 }
 
 write_report() {
@@ -267,6 +233,14 @@ write_report() {
     echo "- Boilerplate source: ${BOILERPLATE_ROOT}"
     echo "- BMAD modules: ${BMAD_MODULES}"
     echo "- BMAD tools: ${BMAD_TOOLS}"
+    echo "- External skills: find-skills, refactor, vercel-composition-patterns, vercel-react-best-practices, web-design-guidelines"
+    echo "- Internal skills: ${INTERNAL_SKILLS}"
+    if [[ -f "${TARGET_DIR}/_bmad/custom/project-workflow.toml" ]]; then
+      echo "- Project policy: configured"
+    else
+      echo "- Project policy: missing; bmad-publish-work-item will run minimal inline setup"
+    fi
+    summarize_pack_result
     echo
     echo "## Copied Or Updated"
     if [[ ${#COPIED[@]} -eq 0 ]]; then echo "- none"; else printf -- "- %s\n" "${COPIED[@]}"; fi
@@ -285,7 +259,9 @@ write_report() {
 log "Adopting boilerplate stack into ${TARGET_DIR}"
 
 copy_tree "${BOILERPLATE_ROOT}/templates/base/.devcontainer" ".devcontainer"
+copy_tree "${BOILERPLATE_ROOT}/templates/base/.codex" ".codex"
 copy_tree "${BOILERPLATE_ROOT}/templates/base/.husky" ".husky"
+copy_base_file ".mcp.json"
 copy_base_file ".dockerignore"
 copy_base_file ".editorconfig"
 copy_base_file ".gitignore"
@@ -295,8 +271,41 @@ copy_base_file ".nvmrc"
 copy_base_file "biome.json"
 copy_base_file "tsconfig.base.json"
 write_file "scripts/install-bmad.sh" "${BOILERPLATE_ROOT}/scripts/install-bmad.sh"
+write_file "scripts/bmad-workflow-pack.mjs" "${BOILERPLATE_ROOT}/scripts/bmad-workflow-pack.mjs"
 write_stack_docs
 ensure_package_script
+
+pack_args=(
+  apply
+  --source "${BOILERPLATE_ROOT}/.boilerplate/bmad-workflow-pack"
+  --target "${TARGET_DIR}"
+)
+if [[ "${DRY_RUN}" -eq 1 ]]; then
+  pack_args+=(--dry-run)
+elif [[ "${FORCE}" -eq 1 ]]; then
+  pack_args+=(--force)
+fi
+PACK_RESULT="$(node "${BOILERPLATE_ROOT}/scripts/bmad-workflow-pack.mjs" "${pack_args[@]}")"
+if [[ "${DRY_RUN}" -eq 1 ]]; then
+  log "BMAD modules: ${BMAD_MODULES}"
+  log "BMAD tools: ${BMAD_TOOLS}"
+  log "External skills: find-skills, refactor, vercel-composition-patterns, vercel-react-best-practices, web-design-guidelines"
+  log "Internal skills: ${INTERNAL_SKILLS}"
+  log "Generic custom overrides: $(find "${BOILERPLATE_ROOT}/.boilerplate/bmad-workflow-pack/bmad-custom" -type f | wc -l)"
+  log "Workflow documentation files: $(find "${BOILERPLATE_ROOT}/.boilerplate/bmad-workflow-pack/docs" -type f | wc -l)"
+  if [[ -f "${TARGET_DIR}/_bmad/custom/project-workflow.toml" ]]; then
+    log "Project policy: configured"
+  else
+    log "Project policy: missing; bmad-publish-work-item will run minimal inline setup"
+  fi
+  if [[ ${#PROPOSED[@]} -eq 0 ]]; then
+    log "Technical conflicts: none"
+  else
+    printf 'Technical proposed conflict: %s\n' "${PROPOSED[@]}"
+  fi
+  log "BMAD workflow pack operations:"
+  summarize_pack_result
+fi
 write_report
 
 if [[ "${DRY_RUN}" -eq 1 ]]; then
@@ -305,11 +314,12 @@ if [[ "${DRY_RUN}" -eq 1 ]]; then
 fi
 
 chmod +x "${TARGET_DIR}/scripts/install-bmad.sh" || true
+chmod +x "${TARGET_DIR}/scripts/bmad-workflow-pack.mjs" || true
 chmod +x "${TARGET_DIR}/.devcontainer/"*.sh || true
 chmod +x "${TARGET_DIR}/.husky/pre-commit" || true
 
 if [[ "${SKIP_BMAD}" -eq 0 ]]; then
-  if node -e 'const [major, minor] = process.versions.node.split(".").map(Number); process.exit(major > 20 || (major === 20 && minor >= 12) ? 0 : 1)' >/dev/null 2>&1; then
+  if node -e 'const [major, minor] = process.versions.node.split(".").map(Number); process.exit(major > 22 || (major === 22 && minor >= 20) ? 0 : 1)' >/dev/null 2>&1; then
     "${TARGET_DIR}/scripts/install-bmad.sh" \
       --target "${TARGET_DIR}" \
       --modules "${BMAD_MODULES}" \
@@ -317,7 +327,7 @@ if [[ "${SKIP_BMAD}" -eq 0 ]]; then
         log "BMAD install failed. Run pnpm bmad:install inside the target devcontainer."
       }
   else
-    log "Skipping immediate BMAD install because host Node is <20.12."
+    log "Skipping immediate BMAD install because host Node is <22.20."
     log "Open the target repo devcontainer, then run: pnpm bmad:install"
   fi
 fi

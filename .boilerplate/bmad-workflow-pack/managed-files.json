@@ -1,0 +1,25 @@
+{
+	"version": 1,
+	"groups": [
+		{
+			"source": "internal-skills",
+			"targets": [".agents/skills", ".claude/skills"]
+		},
+		{
+			"source": "bmad-custom",
+			"targets": ["_bmad/custom"]
+		},
+		{
+			"source": "docs/bmad-work-item-workflow",
+			"targets": ["docs/bmad-work-item-workflow"]
+		},
+		{
+			"source": "docs/bmad-project-workflow",
+			"targets": ["docs/bmad-project-workflow"]
+		}
+	],
+	"stateFile": ".boilerplate/bmad-workflow-pack-state.json",
+	"statusFile": ".boilerplate/bmad-install-status.json",
+	"proposedRoot": ".boilerplate/adoption/proposed",
+	"backupRoot": ".boilerplate/adoption/backups"
+}

@@ -4,8 +4,6 @@
 ARG VARIANT="noble"
 FROM buildpack-deps:${VARIANT}-curl AS base-system
 
-LABEL dev.containers.features="common"
-
 # Ubuntu 24.04 images may contain a default ubuntu user; remove it to avoid UID conflicts.
 ARG VARIANT
 RUN if [ "$VARIANT" = "noble" ]; then \
@@ -27,10 +25,12 @@ RUN apt-get update \
         gnupg \
         htop \
         jq \
+        openssh-client \
         software-properties-common \
         sudo \
         unzip \
         wget \
+        xz-utils \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -63,22 +63,29 @@ RUN mkdir -p /etc/apt/keyrings \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js 24 with nvm and expose binaries for non-login shells.
-ENV NVM_DIR=/usr/local/share/nvm
-RUN mkdir -p "${NVM_DIR}" \
-    && curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash \
-    && . "${NVM_DIR}/nvm.sh" \
-    && nvm install 24 \
-    && nvm alias default 24 \
-    && nvm use default \
+# Install Node.js 24 from the official, checksum-verified distribution.
+ARG NODE_VERSION="24.15.0"
+RUN architecture="$(dpkg --print-architecture)" \
+    && case "${architecture}" in \
+      amd64) node_arch="x64" ;; \
+      arm64) node_arch="arm64" ;; \
+      *) echo "Unsupported Node.js architecture: ${architecture}" >&2; exit 1 ;; \
+    esac \
+    && node_archive="node-v${NODE_VERSION}-linux-${node_arch}.tar.xz" \
+    && curl -fsSLO "https://nodejs.org/dist/v${NODE_VERSION}/${node_archive}" \
+    && curl -fsSLO "https://nodejs.org/dist/v${NODE_VERSION}/SHASUMS256.txt" \
+    && grep " ${node_archive}$" SHASUMS256.txt | sha256sum --check - \
+    && tar -xJf "${node_archive}" --strip-components=1 -C /usr/local \
+    && rm "${node_archive}" SHASUMS256.txt \
     && corepack enable \
-    && ln -sf "${NVM_DIR}/versions/node/$(nvm version default)/bin/node" /usr/local/bin/node \
-    && ln -sf "${NVM_DIR}/versions/node/$(nvm version default)/bin/npm" /usr/local/bin/npm \
-    && ln -sf "${NVM_DIR}/versions/node/$(nvm version default)/bin/npx" /usr/local/bin/npx \
-    && ln -sf "${NVM_DIR}/versions/node/$(nvm version default)/bin/corepack" /usr/local/bin/corepack \
-    && printf 'export NVM_DIR="%s"\n[ -s "%s/nvm.sh" ] && . "%s/nvm.sh"\n' "${NVM_DIR}" "${NVM_DIR}" "${NVM_DIR}" > /etc/profile.d/nvm.sh
+    && node --version \
+    && corepack --version
 
 # Add pnpm completion path.
+ENV UV_INSTALL_DIR=/usr/local/bin
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
+    && uv --version
+
 USER node
 RUN mkdir -p "/home/node/.local/share/bash-completion/completions/"
 USER root

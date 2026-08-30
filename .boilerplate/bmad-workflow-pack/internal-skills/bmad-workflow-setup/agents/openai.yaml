@@ -1,0 +1,4 @@
+interface:
+  display_name: "BMAD Workflow Setup"
+  short_description: "Configure stable adaptive Work Item policy"
+  default_prompt: "Inspect this repository and configure or update its adaptive BMAD Work Item policy, asking one unresolved stable question at a time."

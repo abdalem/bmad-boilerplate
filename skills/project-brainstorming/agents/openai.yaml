@@ -1,4 +1,0 @@
-interface:
-  display_name: "Project Brainstorming"
-  short_description: "Brainstorm projects into docs and tickets"
-  default_prompt: "Use $project-brainstorming to start my project from an idea and generate the brief, specs, docs, and tickets before implementation."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "BMAD Publish Work Item"
+  short_description: "Refine, publish, and route a Work Item"
+  default_prompt: "Use $bmad-publish-work-item to inspect relevant evidence, challenge and confirm the contract, publish the Work Item, and return its first next prompt."

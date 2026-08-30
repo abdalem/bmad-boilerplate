@@ -1,0 +1,20 @@
+[workflow]
+
+activation_steps_append = [
+  "When invoked for a Work Item, determine its ID from the explicit request or contract path, normalize it to lowercase as work_item_id, read {project-root}/_bmad-output/planning-artifacts/{work_item_id}/work-item.md, and bind UX output under that planning folder. For project-level UX, preserve the upstream project-level output behavior without asking for a Work Item ID.",
+  "Read [design] from {project-root}/_bmad/custom/project-workflow.toml. For Work Item design, use Figma as the editable source, record approved file and node links in work-item.md, and update the configured durable screen registry and visual references.",
+  "Ignore generic external design handoffs when project policy enables Figma. Cover relevant default, loading, empty, error, disabled, success, responsive, and accessibility-sensitive states before routing to Build.",
+  "At completion return one next prompt. Route to bmad-spec only when behavior still needs elaboration; otherwise route to bmad-build after design approval.",
+]
+
+persistent_facts = [
+  "file:{project-root}/_bmad/custom/guidelines/kiss.md",
+  "file:{project-root}/docs/bmad-work-item-workflow/design-lifecycle.md",
+  "Work Item UX artifacts are grouped under {project-root}/_bmad-output/planning-artifacts/{work_item_id}; approved references and the screen registry use project-policy paths.",
+]
+
+design_handoffs = [
+  "tool:Figma: Create or update the Work Item's approved screens using the configured Figma integration, then return exact file and node links.",
+]
+
+on_complete = "Return approved Figma references, durable reference paths, and one copy-ready next prompt. Never commit automatically."

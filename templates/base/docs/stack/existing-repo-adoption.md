@@ -2,14 +2,17 @@
 
 Recommended order:
 
-1. Run adoption from the host:
+1. Install and invoke `bmad-update-project` in the existing repository.
+2. Prove the old supported stack and review the generated update waves.
+3. After approving the workflow or tooling wave, run adoption from the host:
    `pnpm adopt:repo -- /path/to/existing-repo`.
-2. Review `.boilerplate/adoption/report.md`.
-3. Review any proposed files under `.boilerplate/adoption/proposed/`.
-4. Open the existing repo in its own devcontainer.
-5. Run `pnpm bmad:install` if BMAD was not installed during adoption.
-6. Run `bmad-help`.
-7. Generate BMAD project context before implementation work.
+4. Review `.boilerplate/adoption/report.md` and proposed conflicts.
+5. Open the existing repo in its own devcontainer.
+6. Run `pnpm bmad:install` if BMAD was not installed during adoption.
+7. Start normal ticket work with `bmad-publish-work-item`; it performs minimal
+   inline policy setup only when required.
+8. Run `bmad-workflow-setup` separately only for onboarding or explicit policy
+   reconfiguration.
 
 The devcontainer belongs to the repo being worked on. Do not work on an existing
 repo from a separate boilerplate devcontainer.

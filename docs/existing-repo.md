@@ -1,83 +1,93 @@
-# Existing Repo Procedure
+# Existing Repository
 
-Use this when a repo already exists and should adopt the devcontainer, BMAD
-bootstrap, stack docs, and technical conventions from the boilerplate.
+Start inside the existing repository. Install only the update skill when the
+repository has not adopted this boilerplate yet:
 
-Run adoption from the host. Do not open the boilerplate devcontainer and try to
-modify another repo from inside it.
+```bash
+npx skills add https://github.com/abdalem/bmad-boilerplate/tree/main/.boilerplate/bmad-workflow-pack/internal-skills/bmad-update-project -a codex -a claude-code -y
+```
 
-The pnpm shortcuts require Node `>=20`. If your host is still on Node 18, either
-switch Node first or run `scripts/adopt-stack.sh` directly.
+## 1. Compare Safely
 
-## 1. Dry Run
+Invoke in Codex or Claude Code:
+
+```text
+bmad-update-project
+```
+
+The skill first proves the repository under its current supported runtime and
+framework versions. It then resolves the latest public boilerplate, clones it
+into a temporary directory, and runs dry-run adoption and topology analysis.
+It never merges boilerplate Git history into the target.
+
+The comparison proposes independent waves for workflow, development tooling,
+topology, one-workspace runtime upgrades, and package-scoped deployment.
+
+## 2. Approve One Wave
+
+Review:
+
+```bash
+cat .boilerplate/adoption/legacy-baseline.md
+cat .boilerplate/adoption/update-plan.md
+find .boilerplate/adoption/proposed -type f
+```
+
+Runtime and framework modernization remains blocked until the old baseline
+passes, unless you explicitly accept and record a pre-existing failure. Apply
+only one approved wave, verify it, then decide whether to continue.
+
+## 3. Manual Host-Side Adoption
+
+The skill normally runs these commands for the approved workflow or tooling
+wave. They remain available as a manual recovery path from a local boilerplate
+clone:
 
 ```bash
 cd /home/abdalem/projects/boilerplate
 pnpm adopt:repo:dry -- /home/abdalem/projects/existing-repo
-```
-
-## 2. Adopt Non-Destructively
-
-```bash
 pnpm adopt:repo -- /home/abdalem/projects/existing-repo
 ```
 
-This command:
+Missing or previously managed files update automatically. Locally modified
+managed files are written under `.boilerplate/adoption/proposed/`. Historical
+`PRODUCT_SPEC.md`, `docs/tickets`, BMAD outputs, personal BMAD configuration,
+and unrelated customizations are preserved.
 
-- Copies missing devcontainer and stack files.
-- Adds `scripts/install-bmad.sh`.
-- Adds `pnpm bmad:install`.
-- Writes `.boilerplate/adoption/report.md`.
-- Writes conflicting generated files to `.boilerplate/adoption/proposed/`
-  instead of overwriting.
-- Tries BMAD install immediately only when host Node is `>=20.12`.
+Force mode creates timestamped backups before replacement:
 
-## 3. Review The Report
+```bash
+pnpm adopt:repo:force -- /home/abdalem/projects/existing-repo
+```
+
+## 4. Open The Target Devcontainer
 
 ```bash
 cd /home/abdalem/projects/existing-repo
 cat .boilerplate/adoption/report.md
 find .boilerplate/adoption/proposed -type f
-```
-
-Manually compare proposed files before accepting them.
-
-## 4. Force Only If You Mean It
-
-Force mode overwrites conflicting stack files and backs up originals under
-`.boilerplate/adoption/backups/`.
-
-```bash
-cd /home/abdalem/projects/boilerplate
-pnpm adopt:repo:force -- /home/abdalem/projects/existing-repo
-```
-
-## 5. Open The Target Repo Devcontainer
-
-```bash
-cd /home/abdalem/projects/existing-repo
 code .
 ```
 
-Reopen in the devcontainer. If BMAD did not install on the host:
+Reopen in the target repo's devcontainer. If upstream installation was skipped
+or failed, run `pnpm bmad:install`; an incomplete status is recorded in
+`.boilerplate/bmad-install-status.json` and reruns are safe.
 
-```bash
-pnpm bmad:install
-```
+Adoption also proposes or installs `.codex/config.toml` and `.mcp.json`. These
+configure Chrome DevTools MCP for both agents without overriding Codex approval
+or sandbox policies.
 
-## 6. Start BMAD For An Existing Repo
+## 5. Continue Delivery
 
-In your AI tool:
+In Codex or Claude Code, start normal ticket work with
+`bmad-publish-work-item`. It validates existing policy and performs minimal
+inline setup only when required. Run `bmad-workflow-setup` separately for
+onboarding or explicit policy reconfiguration.
 
-```text
-bmad-help
-```
+Use `docs/bmad-work-item-workflow/` for adaptive delivery and `docs/stack/` for
+technical conventions. Clear cohesive Features, Issues, and Bugs route to
+`bmad-build`; every emitted Work Item contains the first next prompt.
 
-For existing repos, generate BMAD project context before implementation work.
-The context should capture current architecture, stack, conventions, docs,
-testing, and deployment assumptions.
-
-## 7. Continue Implementation
-
-Use BMAD artifacts for planning and stories. Use `docs/stack/` for the technical
-implementation conventions copied from this boilerplate.
+To use browser automation, start a dedicated host Chrome profile on port `9222`
+with a non-default `--user-data-dir`. The generated MCP command resolves the
+host dynamically from inside the devcontainer.

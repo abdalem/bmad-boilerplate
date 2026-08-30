@@ -1,161 +1,172 @@
 import { join } from 'node:path';
-import {
-  ADAPTERS_DIR,
-  PLANS_DIR,
-  PLAYBOOKS_DIR,
-  SPECS_DIR,
-  TEMPLATE_ROOT,
-  TICKET_SECTION_TITLES,
-} from './constants.js';
+import { REPO_ROOT, TEMPLATE_ROOT } from './constants.js';
 import type {
-  DeployModuleId,
-  DeployProvider,
-  ModuleId,
-  PackageDeployment,
-  PackageKind,
-  ProjectManifest,
-  ProjectPackage,
+	DeployModuleId,
+	DeployProvider,
+	ModuleId,
+	PackageDeployment,
+	PackageKind,
+	ProjectManifest,
+	ProjectPackage,
 } from './types.js';
 
 type CopySource = {
-  root: string;
-  targetPrefix?: string;
-  include?: string[];
-  exclude?: string[];
+	root: string;
+	targetPrefix?: string;
+	include?: string[];
+	exclude?: string[];
 };
 
 type ModuleContext = {
-  manifest: ProjectManifest;
-  projectPackage?: ProjectPackage;
-  deployment?: PackageDeployment;
+	manifest: ProjectManifest;
+	projectPackage?: ProjectPackage;
+	deployment?: PackageDeployment;
 };
 
 export type ModuleDefinition = {
-  id: ModuleId;
-  sources?: CopySource[];
-  dynamicFiles?: (context: ModuleContext) => Record<string, string>;
+	id: ModuleId;
+	sources?: CopySource[];
+	dynamicFiles?: (context: ModuleContext) => Record<string, string>;
 };
 
 export const providerMatrix: Record<PackageKind, DeployProvider[]> = {
-  website: ['cloudflare-pages', 'vercel', 'gh-pages'],
-  'web-app': ['vercel', 'railway', 'cloud-run', 'aws-app-runner'],
-  api: ['railway', 'cloud-run', 'aws-app-runner'],
-  mobile: [],
-  worker: ['cloud-run', 'railway'],
+	website: ['cloudflare-pages', 'vercel', 'gh-pages'],
+	'web-app': ['vercel', 'railway', 'cloud-run', 'aws-app-runner'],
+	api: ['railway', 'cloud-run', 'aws-app-runner'],
+	mobile: [],
+	worker: ['cloud-run', 'railway'],
 };
 
-export const providerModuleByProvider: Record<DeployProvider, DeployModuleId> = {
-  'gh-pages': 'deploy-gh-pages',
-  vercel: 'deploy-vercel',
-  railway: 'deploy-railway',
-  'cloud-run': 'deploy-cloud-run',
-  'aws-app-runner': 'deploy-aws-app-runner',
-  'cloudflare-pages': 'deploy-cloudflare-pages',
-};
+export const providerModuleByProvider: Record<DeployProvider, DeployModuleId> =
+	{
+		'gh-pages': 'deploy-gh-pages',
+		vercel: 'deploy-vercel',
+		railway: 'deploy-railway',
+		'cloud-run': 'deploy-cloud-run',
+		'aws-app-runner': 'deploy-aws-app-runner',
+		'cloudflare-pages': 'deploy-cloudflare-pages',
+	};
 
 export const providerTooling: Record<
-  DeployProvider,
-  { label: string; commands: string[]; help: string }
+	DeployProvider,
+	{ label: string; commands: string[]; help: string }
 > = {
-  'gh-pages': {
-    label: 'GitHub Pages',
-    commands: ['git'],
-    help: 'Git is required to publish and inspect Pages branches.',
-  },
-  vercel: {
-    label: 'Vercel',
-    commands: ['vercel'],
-    help: 'The Vercel CLI is recommended when Vercel deployment modules are enabled.',
-  },
-  railway: {
-    label: 'Railway',
-    commands: ['railway'],
-    help: 'The Railway CLI is recommended when Railway deployment modules are enabled.',
-  },
-  'cloud-run': {
-    label: 'Google Cloud Run',
-    commands: ['gcloud'],
-    help: 'The gcloud CLI is required to deploy Cloud Run services and read run.app metadata.',
-  },
-  'aws-app-runner': {
-    label: 'AWS App Runner',
-    commands: ['aws'],
-    help: 'The AWS CLI is required to manage App Runner services.',
-  },
-  'cloudflare-pages': {
-    label: 'Cloudflare Pages',
-    commands: ['wrangler'],
-    help: 'The Wrangler CLI is required for Cloudflare Pages deployment workflows.',
-  },
+	'gh-pages': {
+		label: 'GitHub Pages',
+		commands: ['git'],
+		help: 'Git is required to publish and inspect Pages branches.',
+	},
+	vercel: {
+		label: 'Vercel',
+		commands: ['vercel'],
+		help: 'The Vercel CLI is recommended when Vercel deployment modules are enabled.',
+	},
+	railway: {
+		label: 'Railway',
+		commands: ['railway'],
+		help: 'The Railway CLI is recommended when Railway deployment modules are enabled.',
+	},
+	'cloud-run': {
+		label: 'Google Cloud Run',
+		commands: ['gcloud'],
+		help: 'The gcloud CLI is required to deploy Cloud Run services and read run.app metadata.',
+	},
+	'aws-app-runner': {
+		label: 'AWS App Runner',
+		commands: ['aws'],
+		help: 'The AWS CLI is required to manage App Runner services.',
+	},
+	'cloudflare-pages': {
+		label: 'Cloudflare Pages',
+		commands: ['wrangler'],
+		help: 'The Wrangler CLI is required for Cloudflare Pages deployment workflows.',
+	},
 };
 
-export const isProviderSupportedForKind = (kind: PackageKind, provider: DeployProvider) => {
-  return providerMatrix[kind].includes(provider);
+export const isProviderSupportedForKind = (
+	kind: PackageKind,
+	provider: DeployProvider,
+) => {
+	return providerMatrix[kind].includes(provider);
 };
 
 const renderPackageTable = (manifest: ProjectManifest) => {
-  return manifest.packages
-    .map(projectPackage => {
-      const deployment = manifest.deployments.find(entry => entry.packageId === projectPackage.id);
-      return `- \`${projectPackage.id}\`: ${projectPackage.kind} at \`${projectPackage.path}\` via \`${deployment?.provider ?? 'unassigned'}\``;
-    })
-    .join('\n');
+	return manifest.packages
+		.map(projectPackage => {
+			const deployment = manifest.deployments.find(
+				entry => entry.packageId === projectPackage.id,
+			);
+			return `- \`${projectPackage.id}\`: ${projectPackage.kind} at \`${projectPackage.path}\` via \`${deployment?.provider ?? 'unassigned'}\``;
+		})
+		.join('\n');
 };
 
 const rootPackageJson = (manifest: ProjectManifest) => {
-  return JSON.stringify(
-    {
-      name: manifest.projectSlug,
-      private: true,
-      description: manifest.description,
-      scripts: {
-        'clear:packages': "find . -type d -name '*node_modules*' -prune -exec rm -rf {} +",
-        'clear:cache':
-          "find . -type d -name '.next' -o -name 'dist' -o -name '.turbo' -o -name '.pnpm-cache' | xargs rm -rf",
-        'clean:install': 'pnpm clear:packages && pnpm install',
-        dev: 'turbo run dev --concurrency=3',
-        lint: 'turbo run lint --concurrency=3',
-        'check:ts': 'turbo run check:ts --concurrency=3',
-        check: 'turbo run check:ts --concurrency=3 && biome check .',
-        'check:fix': 'biome check --write .',
-        test: 'turbo run test --concurrency=3',
-        build: 'turbo run build --concurrency=3',
-        'deploy:summary': "echo 'Review package-scoped deployment docs under docs/deployment/'",
-        'bmad:install': 'scripts/install-bmad.sh',
-        'bmad:status': 'test -d _bmad || test -d _bmad-core || test -d .bmad-core',
-        prepare: 'husky install || true',
-      },
-      devDependencies: {
-        '@biomejs/biome': '2.0.6',
-        husky: '^8.0.3',
-        turbo: '2.6.3',
-        typescript: '5.x',
-      },
-      engines: {
-        pnpm: '>=10',
-        node: '>=20',
-      },
-      packageManager: 'pnpm@10.26.0',
-    },
-    null,
-    2,
-  );
+	return JSON.stringify(
+		{
+			name: manifest.projectSlug,
+			private: true,
+			description: manifest.description,
+			scripts: {
+				'clear:packages':
+					"find . -type d -name '*node_modules*' -prune -exec rm -rf {} +",
+				'clear:cache':
+					"find . -type d -name '.next' -o -name 'dist' -o -name '.turbo' -o -name '.pnpm-cache' | xargs rm -rf",
+				'clean:install': 'pnpm clear:packages && pnpm install',
+				dev: 'turbo run dev --concurrency=3',
+				lint: 'turbo run lint --concurrency=3',
+				'check:ts': 'turbo run check:ts --concurrency=3',
+				check: 'turbo run check:ts --concurrency=3 && biome check .',
+				'check:fix': 'biome check --write .',
+				test: 'turbo run test --concurrency=3',
+				build: 'turbo run build --concurrency=3',
+				'deploy:summary':
+					"echo 'Review package-scoped deployment docs under docs/deployment/'",
+				'bmad:install': 'scripts/install-bmad.sh',
+				'bmad:install:stable': 'scripts/install-bmad.sh',
+				'bmad:install:preview':
+					'BMAD_INSTALLER=bmad-method@next BMAD_CHANNEL=next scripts/install-bmad.sh',
+				'bmad:status':
+					'test -d _bmad || test -d _bmad-core || test -d .bmad-core',
+				'bmad:validate':
+					'node scripts/bmad-workflow-pack.mjs validate --target . --upstream',
+				prepare: 'husky install || true',
+			},
+			devDependencies: {
+				'@biomejs/biome': '2.5.4',
+				husky: '^8.0.3',
+				turbo: '2.6.3',
+				typescript: '5.x',
+			},
+			engines: {
+				pnpm: '>=10',
+				node: '>=22.20',
+			},
+			packageManager: 'pnpm@10.26.0',
+		},
+		null,
+		2,
+	);
 };
 
 const rootReadme = (manifest: ProjectManifest) => {
-  return `# ${manifest.projectName}
+	return `# ${manifest.projectName}
 
 Generated by the BMAD stack boilerplate.
 
 ## Workflow
 
-Use BMAD as the primary product, architecture, story, and delivery workflow.
+Use BMAD for product discovery and the adaptive Work Item delivery workflow.
 
 \`\`\`bash
 pnpm bmad:install
 \`\`\`
 
-Then run \`bmad-help\` in your AI coding tool.
+If project inception is not complete, invoke \`bmad-start-project\` to import or
+discover the product, route initial Figma and BMAD work, and publish the first
+actionable Work Item. In an established project, start normal delivery with
+\`bmad-publish-work-item\`. Use \`bmad-workflow-setup\` separately for onboarding
+or workflow reconfiguration.
 
 ## Package Topology
 
@@ -173,6 +184,8 @@ pnpm build
 ## Stack Guidance
 
 - BMAD output defaults to \`_bmad-output/\`.
+- Project workflow guidance lives under \`docs/bmad-project-workflow/\`.
+- Work Item guidance lives under \`docs/bmad-work-item-workflow/\`.
 - Stack conventions live under \`docs/stack/\`.
 - Package-scoped deployment docs live under \`docs/deployment/\`.
 `;
@@ -230,46 +243,11 @@ jobs:
           version: 10
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       - run: pnpm test
-`;
-
-const codexAdapterDoc = `# Codex Adapter
-
-Codex should treat these files as the canonical workflow artifacts:
-
-- \`.boilerplate/project-brief.md\`
-- \`.boilerplate/project-manifest.json\`
-- \`${SPECS_DIR}/\`
-- \`${PLANS_DIR}/\`
-- \`PRODUCT_SPEC.md\`
-
-Codex-specific prompts or skills may vary, but they must not invent a separate project state model.
-`;
-
-const claudeAdapterDoc = `# Claude Code Adapter
-
-Claude Code should operate on the same artifact chain as Codex:
-
-- \`.boilerplate/project-brief.md\`
-- \`.boilerplate/project-manifest.json\`
-- \`${SPECS_DIR}/\`
-- \`${PLANS_DIR}/\`
-- \`PRODUCT_SPEC.md\`
-
-Claude-specific workflows are allowed only as thin interaction layers over this shared state.
-`;
-
-const featurePlaybook = `# Feature Workflow Playbook
-
-1. Start with \`bmad-help\`.
-2. Confirm the current BMAD artifact or story driving the work.
-3. Update project context if the repo changed materially.
-4. Touch only the modules and packages required by the change.
-5. Update deployment docs if package topology or providers changed.
 `;
 
 const deploymentPlaybook = `# Deployment Topology Playbook
@@ -281,16 +259,17 @@ const deploymentPlaybook = `# Deployment Topology Playbook
 `;
 
 const providerWorkflow = (
-  _manifest: ProjectManifest,
-  projectPackage: ProjectPackage,
-  deployment: PackageDeployment,
+	_manifest: ProjectManifest,
+	projectPackage: ProjectPackage,
+	deployment: PackageDeployment,
 ) => {
-  const workflowName = `Deploy ${projectPackage.id} to ${deployment.provider}`;
-  const packagePath = projectPackage.path;
-  const providerLabel = deployment.provider;
-  const buildCommand = packagePath === '.' ? 'pnpm build' : `pnpm --dir ${packagePath} build`;
+	const workflowName = `Deploy ${projectPackage.id} to ${deployment.provider}`;
+	const packagePath = projectPackage.path;
+	const providerLabel = deployment.provider;
+	const buildCommand =
+		packagePath === '.' ? 'pnpm build' : `pnpm --dir ${packagePath} build`;
 
-  return `name: ${workflowName}
+	return `name: ${workflowName}
 
 on:
   workflow_dispatch:
@@ -316,8 +295,11 @@ jobs:
 `;
 };
 
-const providerDoc = (projectPackage: ProjectPackage, deployment: PackageDeployment) => {
-  return `# ${projectPackage.name} -> ${deployment.provider}
+const providerDoc = (
+	projectPackage: ProjectPackage,
+	deployment: PackageDeployment,
+) => {
+	return `# ${projectPackage.name} -> ${deployment.provider}
 
 ## Package
 - id: \`${projectPackage.id}\`
@@ -340,27 +322,27 @@ ${deployment.dependencyEdges.map(edge => `- \`${projectPackage.id}\` ${edge.rela
 };
 
 const providerMetadata = (
-  manifest: ProjectManifest,
-  projectPackage: ProjectPackage,
-  deployment: PackageDeployment,
+	manifest: ProjectManifest,
+	projectPackage: ProjectPackage,
+	deployment: PackageDeployment,
 ) => {
-  return JSON.stringify(
-    {
-      project: manifest.projectSlug,
-      packageId: projectPackage.id,
-      packagePath: projectPackage.path,
-      kind: projectPackage.kind,
-      provider: deployment.provider,
-      moduleId: deployment.moduleId,
-      version: deployment.version,
-    },
-    null,
-    2,
-  );
+	return JSON.stringify(
+		{
+			project: manifest.projectSlug,
+			packageId: projectPackage.id,
+			packagePath: projectPackage.path,
+			kind: projectPackage.kind,
+			provider: deployment.provider,
+			moduleId: deployment.moduleId,
+			version: deployment.version,
+		},
+		null,
+		2,
+	);
 };
 
 const cloudRunService = (projectPackage: ProjectPackage) => {
-  return `apiVersion: serving.knative.dev/v1
+	return `apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   name: ${projectPackage.id}
@@ -375,7 +357,7 @@ spec:
 };
 
 const awsAppRunnerService = (projectPackage: ProjectPackage) => {
-  return `Version: 1.0
+	return `Version: 1.0
 Runtime: Managed
 SourceConfiguration:
   AutoDeploymentsEnabled: true
@@ -388,272 +370,277 @@ SourceConfiguration:
 };
 
 const deployFilesForPackage = (
-  manifest: ProjectManifest,
-  projectPackage: ProjectPackage,
-  deployment: PackageDeployment,
+	manifest: ProjectManifest,
+	projectPackage: ProjectPackage,
+	deployment: PackageDeployment,
 ) => {
-  const baseFiles: Record<string, string> = {
-    [`.github/workflows/deploy-${projectPackage.id}-${deployment.provider}.yml`]: providerWorkflow(
-      manifest,
-      projectPackage,
-      deployment,
-    ),
-    [`docs/deployment/${projectPackage.id}-${deployment.provider}.md`]: providerDoc(
-      projectPackage,
-      deployment,
-    ),
-    [`.boilerplate/deployments/${projectPackage.id}.json`]: `${providerMetadata(
-      manifest,
-      projectPackage,
-      deployment,
-    )}\n`,
-  };
+	const baseFiles: Record<string, string> = {
+		[`.github/workflows/deploy-${projectPackage.id}-${deployment.provider}.yml`]:
+			providerWorkflow(manifest, projectPackage, deployment),
+		[`docs/deployment/${projectPackage.id}-${deployment.provider}.md`]:
+			providerDoc(projectPackage, deployment),
+		[`.boilerplate/deployments/${projectPackage.id}.json`]: `${providerMetadata(
+			manifest,
+			projectPackage,
+			deployment,
+		)}\n`,
+	};
 
-  if (deployment.provider === 'cloud-run') {
-    baseFiles[`deploy/cloud-run/${projectPackage.id}.service.yaml`] =
-      cloudRunService(projectPackage);
-  }
+	if (deployment.provider === 'cloud-run') {
+		baseFiles[`deploy/cloud-run/${projectPackage.id}.service.yaml`] =
+			cloudRunService(projectPackage);
+	}
 
-  if (deployment.provider === 'aws-app-runner') {
-    baseFiles[`deploy/aws-app-runner/${projectPackage.id}.apprunner.yaml`] =
-      awsAppRunnerService(projectPackage);
-  }
+	if (deployment.provider === 'aws-app-runner') {
+		baseFiles[`deploy/aws-app-runner/${projectPackage.id}.apprunner.yaml`] =
+			awsAppRunnerService(projectPackage);
+	}
 
-  if (deployment.provider === 'railway') {
-    baseFiles[`deploy/railway/${projectPackage.id}.md`] = `# Railway Placeholder
+	if (deployment.provider === 'railway') {
+		baseFiles[`deploy/railway/${projectPackage.id}.md`] = `# Railway Placeholder
 
 Package \`${projectPackage.id}\` is assigned to Railway.
 Use the generated workflow and this file as the package-scoped anchor instead of a repo-wide deploy preset.
 `;
-  }
+	}
 
-  if (deployment.provider === 'vercel') {
-    baseFiles[`deploy/vercel/${projectPackage.id}.md`] = `# Vercel Placeholder
+	if (deployment.provider === 'vercel') {
+		baseFiles[`deploy/vercel/${projectPackage.id}.md`] = `# Vercel Placeholder
 
 Package \`${projectPackage.id}\` is assigned to Vercel.
 Keep project linking and environment setup in Vercel, but preserve this file for repo-visible topology ownership.
 `;
-  }
+	}
 
-  if (deployment.provider === 'gh-pages') {
-    baseFiles[`deploy/gh-pages/${projectPackage.id}.md`] = `# GitHub Pages Placeholder
+	if (deployment.provider === 'gh-pages') {
+		baseFiles[`deploy/gh-pages/${projectPackage.id}.md`] =
+			`# GitHub Pages Placeholder
 
 Package \`${projectPackage.id}\` is assigned to GitHub Pages.
 The workflow publishes the package output; keep any custom domain or Pages settings documented here.
 `;
-  }
+	}
 
-  if (deployment.provider === 'cloudflare-pages') {
-    baseFiles[`deploy/cloudflare-pages/${projectPackage.id}.md`] = `# Cloudflare Pages Placeholder
+	if (deployment.provider === 'cloudflare-pages') {
+		baseFiles[`deploy/cloudflare-pages/${projectPackage.id}.md`] =
+			`# Cloudflare Pages Placeholder
 
 Package \`${projectPackage.id}\` is assigned to Cloudflare Pages.
 Keep Pages project settings, custom domains, and Wrangler notes documented here.
 `;
-  }
+	}
 
-  return baseFiles;
+	return baseFiles;
 };
 
 const moduleDefinitions: Record<ModuleId, ModuleDefinition> = {
-  'repo-foundation': {
-    id: 'repo-foundation',
-    sources: [
-      {
-        root: join(TEMPLATE_ROOT, 'base'),
-        exclude: ['.devcontainer/**'],
-      },
-    ],
-  },
-  devcontainer: {
-    id: 'devcontainer',
-    sources: [
-      {
-        root: join(TEMPLATE_ROOT, 'base', '.devcontainer'),
-        targetPrefix: '.devcontainer',
-      },
-    ],
-  },
-  'github-actions': {
-    id: 'github-actions',
-    dynamicFiles: () => ({
-      '.github/workflows/ci.yml': ciWorkflow,
-    }),
-  },
-  'monorepo-core': {
-    id: 'monorepo-core',
-    sources: [
-      {
-        root: join(TEMPLATE_ROOT, 'workspace', 'monorepo'),
-      },
-    ],
-    dynamicFiles: ({ manifest }) => ({
-      'package.json': `${rootPackageJson(manifest)}\n`,
-      'README.md': `${rootReadme(manifest).trim()}\n`,
-    }),
-  },
-  'shared-contracts': {
-    id: 'shared-contracts',
-    sources: [
-      {
-        root: join(TEMPLATE_ROOT, 'workspace', 'shared'),
-        targetPrefix: 'packages/shared',
-      },
-    ],
-    dynamicFiles: () => ({
-      'packages/shared/src/contracts.ts': `${genericSharedContracts.trim()}\n`,
-      'packages/shared/src/index.ts': `${genericSharedIndex.trim()}\n`,
-    }),
-  },
-  'docs-core': {
-    id: 'docs-core',
-    dynamicFiles: () => ({
-      'docs/superpowers/README.md':
-        '# Superpowers\n\nShared design, planning, and playbook artifacts live here.\n',
-      [`${SPECS_DIR}/README.md`]:
-        '# Design Specs\n\nApproved product and technical design docs live in this directory.\n',
-      [`${PLANS_DIR}/README.md`]:
-        '# Implementation Plans\n\nApproved implementation plans live in this directory.\n',
-      [`${PLAYBOOKS_DIR}/feature-workflow.md`]: `${featurePlaybook.trim()}\n`,
-      [`${PLAYBOOKS_DIR}/deployment-topology.md`]: `${deploymentPlaybook.trim()}\n`,
-      [`${ADAPTERS_DIR}/codex.md`]: `${codexAdapterDoc.trim()}\n`,
-      [`${ADAPTERS_DIR}/claude-code.md`]: `${claudeAdapterDoc.trim()}\n`,
-    }),
-  },
-  'mobile-expo': {
-    id: 'mobile-expo',
-    sources: [
-      {
-        root: join(TEMPLATE_ROOT, 'archetypes', 'mobile'),
-      },
-    ],
-  },
-  'web-next': {
-    id: 'web-next',
-    sources: [
-      {
-        root: join(TEMPLATE_ROOT, 'archetypes', 'web-app'),
-      },
-    ],
-  },
-  'api-adonis': {
-    id: 'api-adonis',
-    sources: [
-      {
-        root: join(TEMPLATE_ROOT, 'archetypes', 'api'),
-      },
-    ],
-  },
-  'website-astro': {
-    id: 'website-astro',
-    sources: [
-      {
-        root: join(TEMPLATE_ROOT, 'archetypes', 'website'),
-      },
-    ],
-  },
-  'deploy-gh-pages': {
-    id: 'deploy-gh-pages',
-    dynamicFiles: context => {
-      if (!context.projectPackage || !context.deployment) {
-        return {};
-      }
+	'repo-foundation': {
+		id: 'repo-foundation',
+		sources: [
+			{
+				root: join(TEMPLATE_ROOT, 'base'),
+				exclude: ['.devcontainer/**'],
+			},
+			{
+				root: join(REPO_ROOT, '.boilerplate', 'bmad-workflow-pack'),
+				targetPrefix: '.boilerplate/bmad-workflow-pack',
+			},
+		],
+	},
+	devcontainer: {
+		id: 'devcontainer',
+		sources: [
+			{
+				root: join(TEMPLATE_ROOT, 'base', '.devcontainer'),
+				targetPrefix: '.devcontainer',
+			},
+		],
+	},
+	'github-actions': {
+		id: 'github-actions',
+		dynamicFiles: () => ({
+			'.github/workflows/ci.yml': ciWorkflow,
+		}),
+	},
+	'monorepo-core': {
+		id: 'monorepo-core',
+		sources: [
+			{
+				root: join(TEMPLATE_ROOT, 'workspace', 'monorepo'),
+			},
+		],
+		dynamicFiles: ({ manifest }) => ({
+			'package.json': `${rootPackageJson(manifest)}\n`,
+			'README.md': `${rootReadme(manifest).trim()}\n`,
+		}),
+	},
+	'shared-contracts': {
+		id: 'shared-contracts',
+		sources: [
+			{
+				root: join(TEMPLATE_ROOT, 'workspace', 'shared'),
+				targetPrefix: 'packages/shared',
+			},
+		],
+		dynamicFiles: () => ({
+			'packages/shared/src/contracts.ts': `${genericSharedContracts.trim()}\n`,
+			'packages/shared/src/index.ts': `${genericSharedIndex.trim()}\n`,
+		}),
+	},
+	'docs-core': {
+		id: 'docs-core',
+		dynamicFiles: () => ({
+			'docs/stack/deployment-topology.md': `${deploymentPlaybook.trim()}\n`,
+		}),
+	},
+	'mobile-expo': {
+		id: 'mobile-expo',
+		sources: [
+			{
+				root: join(TEMPLATE_ROOT, 'archetypes', 'mobile'),
+			},
+		],
+	},
+	'web-next': {
+		id: 'web-next',
+		sources: [
+			{
+				root: join(TEMPLATE_ROOT, 'archetypes', 'web-app'),
+			},
+		],
+	},
+	'api-adonis': {
+		id: 'api-adonis',
+		sources: [
+			{
+				root: join(TEMPLATE_ROOT, 'archetypes', 'api'),
+			},
+		],
+	},
+	'website-astro': {
+		id: 'website-astro',
+		sources: [
+			{
+				root: join(TEMPLATE_ROOT, 'archetypes', 'website'),
+			},
+		],
+	},
+	'deploy-gh-pages': {
+		id: 'deploy-gh-pages',
+		dynamicFiles: context => {
+			if (!context.projectPackage || !context.deployment) {
+				return {};
+			}
 
-      return deployFilesForPackage(context.manifest, context.projectPackage, context.deployment);
-    },
-  },
-  'deploy-vercel': {
-    id: 'deploy-vercel',
-    dynamicFiles: context => {
-      if (!context.projectPackage || !context.deployment) {
-        return {};
-      }
+			return deployFilesForPackage(
+				context.manifest,
+				context.projectPackage,
+				context.deployment,
+			);
+		},
+	},
+	'deploy-vercel': {
+		id: 'deploy-vercel',
+		dynamicFiles: context => {
+			if (!context.projectPackage || !context.deployment) {
+				return {};
+			}
 
-      return deployFilesForPackage(context.manifest, context.projectPackage, context.deployment);
-    },
-  },
-  'deploy-railway': {
-    id: 'deploy-railway',
-    dynamicFiles: context => {
-      if (!context.projectPackage || !context.deployment) {
-        return {};
-      }
+			return deployFilesForPackage(
+				context.manifest,
+				context.projectPackage,
+				context.deployment,
+			);
+		},
+	},
+	'deploy-railway': {
+		id: 'deploy-railway',
+		dynamicFiles: context => {
+			if (!context.projectPackage || !context.deployment) {
+				return {};
+			}
 
-      return deployFilesForPackage(context.manifest, context.projectPackage, context.deployment);
-    },
-  },
-  'deploy-cloud-run': {
-    id: 'deploy-cloud-run',
-    dynamicFiles: context => {
-      if (!context.projectPackage || !context.deployment) {
-        return {};
-      }
+			return deployFilesForPackage(
+				context.manifest,
+				context.projectPackage,
+				context.deployment,
+			);
+		},
+	},
+	'deploy-cloud-run': {
+		id: 'deploy-cloud-run',
+		dynamicFiles: context => {
+			if (!context.projectPackage || !context.deployment) {
+				return {};
+			}
 
-      return deployFilesForPackage(context.manifest, context.projectPackage, context.deployment);
-    },
-  },
-  'deploy-aws-app-runner': {
-    id: 'deploy-aws-app-runner',
-    dynamicFiles: context => {
-      if (!context.projectPackage || !context.deployment) {
-        return {};
-      }
+			return deployFilesForPackage(
+				context.manifest,
+				context.projectPackage,
+				context.deployment,
+			);
+		},
+	},
+	'deploy-aws-app-runner': {
+		id: 'deploy-aws-app-runner',
+		dynamicFiles: context => {
+			if (!context.projectPackage || !context.deployment) {
+				return {};
+			}
 
-      return deployFilesForPackage(context.manifest, context.projectPackage, context.deployment);
-    },
-  },
-  'deploy-cloudflare-pages': {
-    id: 'deploy-cloudflare-pages',
-    dynamicFiles: context => {
-      if (!context.projectPackage || !context.deployment) {
-        return {};
-      }
+			return deployFilesForPackage(
+				context.manifest,
+				context.projectPackage,
+				context.deployment,
+			);
+		},
+	},
+	'deploy-cloudflare-pages': {
+		id: 'deploy-cloudflare-pages',
+		dynamicFiles: context => {
+			if (!context.projectPackage || !context.deployment) {
+				return {};
+			}
 
-      return deployFilesForPackage(context.manifest, context.projectPackage, context.deployment);
-    },
-  },
+			return deployFilesForPackage(
+				context.manifest,
+				context.projectPackage,
+				context.deployment,
+			);
+		},
+	},
 };
 
 export const getModuleDefinition = (id: ModuleId) => {
-  return moduleDefinitions[id];
+	return moduleDefinitions[id];
 };
 
-export const getProviderModuleId = (provider: DeployProvider) => providerModuleByProvider[provider];
+export const getProviderModuleId = (provider: DeployProvider) =>
+	providerModuleByProvider[provider];
 
 export const buildModuleOrder = (manifest: ProjectManifest): ModuleId[] => {
-  const ordered = new Set<ModuleId>();
+	const ordered = new Set<ModuleId>();
 
-  for (const moduleId of manifest.coreModules) {
-    ordered.add(moduleId);
-  }
+	for (const moduleId of manifest.coreModules) {
+		ordered.add(moduleId);
+	}
 
-  for (const projectPackage of manifest.packages) {
-    for (const moduleId of projectPackage.modules) {
-      ordered.add(moduleId);
-    }
-  }
+	for (const projectPackage of manifest.packages) {
+		for (const moduleId of projectPackage.modules) {
+			ordered.add(moduleId);
+		}
+	}
 
-  for (const deployment of manifest.deployments) {
-    ordered.add(deployment.moduleId);
-  }
+	for (const deployment of manifest.deployments) {
+		ordered.add(deployment.moduleId);
+	}
 
-  return [...ordered];
+	return [...ordered];
 };
 
-export const resolveDeployment = (manifest: ProjectManifest, packageId: string) => {
-  return manifest.deployments.find(entry => entry.packageId === packageId);
-};
-
-export const getTicketTemplateMarkdown = () => {
-  return `---
-id: V1-01
-title: Example ticket
-area: core
-type: feature
-status: draft
-labels: [api, web]
-depends_on: []
----
-
-${TICKET_SECTION_TITLES.map(title => `## ${title}\n`).join('\n')}
-`;
+export const resolveDeployment = (
+	manifest: ProjectManifest,
+	packageId: string,
+) => {
+	return manifest.deployments.find(entry => entry.packageId === packageId);
 };

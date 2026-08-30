@@ -1,0 +1,4 @@
+interface:
+  display_name: "Update Business Release Notes"
+  short_description: "Draft policy-controlled business release notes"
+  default_prompt: "Use $update-business-release-notes to check project policy and update configured business release notes from stable GitHub Releases."

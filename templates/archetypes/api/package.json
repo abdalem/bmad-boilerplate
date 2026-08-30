@@ -1,56 +1,54 @@
 {
-  "name": "__PACKAGE_NAME__",
-  "private": true,
-  "scripts": {
-    "dev": "node ace serve --watch",
-    "build": "pnpm check:ts",
-    "start": "node ace serve --host=0.0.0.0 --port=${PORT:-3333}",
-    "lint": "biome check .",
-    "check:ts": "tsc -p tsconfig.json --noEmit",
-    "check": "pnpm check:ts && biome check .",
-    "check:fix": "biome check --write .",
-    "typecheck": "pnpm check:ts",
-    "test": "pnpm check:ts",
-    "bmad:install": "scripts/install-bmad.sh",
-    "bmad:status": "test -d _bmad || test -d _bmad-core || test -d .bmad-core"
-  },
-  "dependencies": {
-    "@adonisjs/core": "^6.0.0",
-    "@adonisjs/cors": "^2.2.1",
-    "@vinejs/vine": "^3.0.1",
-    "reflect-metadata": "^0.2.2"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.0.6",
-    "@adonisjs/assembler": "^7.8.2",
-    "@swc/core": "1.11.24",
-    "@types/node": "^22.15.18",
-    "ts-node-maintained": "^10.9.5",
-    "typescript": "^5.5.4"
-  },
-  "engines": {
-    "pnpm": ">=10",
-    "node": ">=20"
-  },
-  "packageManager": "pnpm@10.26.0",
-  "type": "module",
-  "imports": {
-    "#controllers/*": "./app/controllers/*.js",
-    "#exceptions/*": "./app/exceptions/*.js",
-    "#models/*": "./app/models/*.js",
-    "#mails/*": "./app/mails/*.js",
-    "#services/*": "./app/services/*.js",
-    "#listeners/*": "./app/listeners/*.js",
-    "#events/*": "./app/events/*.js",
-    "#middleware/*": "./app/middleware/*.js",
-    "#validators/*": "./app/validators/*.js",
-    "#providers/*": "./providers/*.js",
-    "#policies/*": "./app/policies/*.js",
-    "#abilities/*": "./app/abilities/*.js",
-    "#database/*": "./database/*.js",
-    "#start/*": "./start/*.js",
-    "#tests/*": "./tests/*.js",
-    "#config/*": "./config/*.js",
-    "#utils/*": "./app/utils/*.js"
-  }
+	"name": "__PACKAGE_NAME__",
+	"private": true,
+	"scripts": {
+		"dev": "node ace serve --watch",
+		"build": "pnpm check:ts",
+		"start": "node ace serve --host=0.0.0.0 --port=${PORT:-3333}",
+		"lint": "biome check .",
+		"check:ts": "tsc -p tsconfig.json --noEmit",
+		"check": "pnpm check:ts && biome check .",
+		"check:fix": "biome check --write .",
+		"typecheck": "pnpm check:ts",
+		"test": "pnpm check:ts"
+	},
+	"dependencies": {
+		"@adonisjs/core": "^6.0.0",
+		"@adonisjs/cors": "^2.2.1",
+		"@vinejs/vine": "^3.0.1",
+		"reflect-metadata": "^0.2.2"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.4",
+		"@adonisjs/assembler": "^7.8.2",
+		"@swc/core": "1.11.24",
+		"@types/node": "^22.15.18",
+		"ts-node-maintained": "^10.9.5",
+		"typescript": "^5.5.4"
+	},
+	"engines": {
+		"pnpm": ">=10",
+		"node": ">=22.20"
+	},
+	"packageManager": "pnpm@10.26.0",
+	"type": "module",
+	"imports": {
+		"#controllers/*": "./app/controllers/*.js",
+		"#exceptions/*": "./app/exceptions/*.js",
+		"#models/*": "./app/models/*.js",
+		"#mails/*": "./app/mails/*.js",
+		"#services/*": "./app/services/*.js",
+		"#listeners/*": "./app/listeners/*.js",
+		"#events/*": "./app/events/*.js",
+		"#middleware/*": "./app/middleware/*.js",
+		"#validators/*": "./app/validators/*.js",
+		"#providers/*": "./providers/*.js",
+		"#policies/*": "./app/policies/*.js",
+		"#abilities/*": "./app/abilities/*.js",
+		"#database/*": "./database/*.js",
+		"#start/*": "./start/*.js",
+		"#tests/*": "./tests/*.js",
+		"#config/*": "./config/*.js",
+		"#utils/*": "./app/utils/*.js"
+	}
 }

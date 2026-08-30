@@ -1,0 +1,11 @@
+module,skill,action
+BMad Method,bmad-create-epics-and-stories,
+BMad Method,bmad-check-implementation-readiness,
+BMad Method,bmad-sprint-planning,
+BMad Method,bmad-sprint-planning,status
+BMad Method,bmad-sprint-status,
+BMad Method,bmad-create-story,create
+BMad Method,bmad-create-story,validate
+BMad Method,bmad-dev-story,
+BMad Method,bmad-quick-dev,
+BMad Method,bmad-retrospective,

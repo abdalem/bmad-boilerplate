@@ -1,35 +1,33 @@
 {
-  "name": "__PACKAGE_NAME__",
-  "private": true,
-  "scripts": {
-    "start": "expo start",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
-    "web": "expo start --web",
-    "build": "pnpm check:ts",
-    "lint": "biome check .",
-    "check:ts": "tsc -p tsconfig.json --noEmit",
-    "check": "pnpm check:ts && biome check .",
-    "check:fix": "biome check --write .",
-    "typecheck": "pnpm check:ts",
-    "test": "pnpm check:ts",
-    "bmad:install": "scripts/install-bmad.sh",
-    "bmad:status": "test -d _bmad || test -d _bmad-core || test -d .bmad-core"
-  },
-  "dependencies": {
-    "expo": "~52.0.0",
-    "react": "18.2.0",
-    "react-native": "0.76.0",
-    "zod": "^3.23.8"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.0.6",
-    "@types/react": "^18.2.6",
-    "typescript": "^5.5.4"
-  },
-  "engines": {
-    "pnpm": ">=10",
-    "node": ">=20"
-  },
-  "packageManager": "pnpm@10.26.0"
+	"name": "__PACKAGE_NAME__",
+	"private": true,
+	"scripts": {
+		"start": "expo start",
+		"android": "expo run:android",
+		"ios": "expo run:ios",
+		"web": "expo start --web",
+		"build": "pnpm check:ts",
+		"lint": "biome check .",
+		"check:ts": "tsc -p tsconfig.json --noEmit",
+		"check": "pnpm check:ts && biome check .",
+		"check:fix": "biome check --write .",
+		"typecheck": "pnpm check:ts",
+		"test": "pnpm check:ts"
+	},
+	"dependencies": {
+		"expo": "~52.0.0",
+		"react": "18.2.0",
+		"react-native": "0.76.0",
+		"zod": "^3.23.8"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.4",
+		"@types/react": "^18.2.6",
+		"typescript": "^5.5.4"
+	},
+	"engines": {
+		"pnpm": ">=10",
+		"node": ">=22.20"
+	},
+	"packageManager": "pnpm@10.26.0"
 }

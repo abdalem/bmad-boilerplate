@@ -1,0 +1,10 @@
+[workflow]
+
+activation_steps_append = [
+  "Before creating feature-level QA or test artifacts, determine the work item ID. If the user already provided one, use it. If not, ask for it before choosing output paths. Normalize it to lowercase for folder paths, for example APP-001 -> app-001, and store it as work_item_id for this run.",
+  "For this run, after loading TEA config, treat {output_folder}/implementation-artifacts/{work_item_id}/tests as the effective test_artifacts folder for feature-level traceability outputs unless the user provides an explicit output path. Read the published contract and PRD from {output_folder}/planning-artifacts/{work_item_id} as product sources.",
+]
+persistent_facts = [
+  "file:{project-root}/_bmad/custom/guidelines/kiss.md",
+  "Feature-level test outputs are post-publication delivery artifacts under {output_folder}/implementation-artifacts/{work_item_id}/tests. Product contract sources remain under {output_folder}/planning-artifacts/{work_item_id}.",
+]

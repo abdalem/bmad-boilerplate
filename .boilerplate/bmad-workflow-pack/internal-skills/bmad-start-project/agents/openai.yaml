@@ -1,0 +1,4 @@
+interface:
+  display_name: "BMAD Start Project"
+  short_description: "Configure and define a product through its first Work Item"
+  default_prompt: "Use $bmad-start-project to configure this boilerplate clone, import or discover and challenge the product, route necessary BMAD and Figma work, and publish the first actionable Work Item."

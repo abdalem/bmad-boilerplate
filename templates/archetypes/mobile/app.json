@@ -1,19 +1,19 @@
 {
-  "expo": {
-    "name": "__PROJECT_NAME__",
-    "slug": "__PROJECT_SLUG__-mobile",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "userInterfaceStyle": "light",
-    "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "edgeToEdgeEnabled": true
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "static"
-    }
-  }
+	"expo": {
+		"name": "__PROJECT_NAME__",
+		"slug": "__PROJECT_SLUG__-mobile",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"userInterfaceStyle": "light",
+		"ios": {
+			"supportsTablet": true
+		},
+		"android": {
+			"edgeToEdgeEnabled": true
+		},
+		"web": {
+			"bundler": "metro",
+			"output": "static"
+		}
+	}
 }

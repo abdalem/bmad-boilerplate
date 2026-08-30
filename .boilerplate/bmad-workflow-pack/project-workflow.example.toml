@@ -1,0 +1,39 @@
+version = 2
+
+[project]
+key = "APP"
+summary_language = "English"
+
+[tickets]
+identity_mode = "local"
+tracker = "none"
+project_key = "APP"
+local_prefix = "APP"
+local_start = 1
+local_width = 3
+
+[work_items]
+types = ["Module", "Request", "Feature", "Issue", "Bug", "Spike"]
+module_type = "Module"
+request_type = "Request"
+feature_type = "Feature"
+issue_type = "Issue"
+bug_type = "Bug"
+spike_type = "Spike"
+module_children = ["Feature", "Issue"]
+feature_children = ["Issue"]
+
+[design]
+provider = "figma"
+enabled = false
+screen_registry_path = "docs/design/screen-registry.md"
+reference_path = "docs/design/references"
+
+[automation]
+build_auto_enabled = false
+loop_enabled = false
+
+[release_notes]
+enabled = false
+path = ""
+language = "English"

@@ -1,9 +1,9 @@
 {
-  "name": "__PROJECT_NAME__",
-  "short_name": "__PROJECT_NAME__",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
-  "icons": []
+	"name": "__PROJECT_NAME__",
+	"short_name": "__PROJECT_NAME__",
+	"start_url": "/",
+	"display": "standalone",
+	"background_color": "#ffffff",
+	"theme_color": "#ffffff",
+	"icons": []
 }

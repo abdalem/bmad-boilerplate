@@ -1,0 +1,4 @@
+interface:
+  display_name: "BMAD Update Project"
+  short_description: "Compare and safely upgrade an existing repository"
+  default_prompt: "Use $bmad-update-project to prove this repository's legacy baseline, compare it with the latest public boilerplate, and apply only one explicitly approved upgrade wave without committing."

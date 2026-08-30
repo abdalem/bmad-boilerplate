@@ -1,12 +1,12 @@
 {
-  "extends": "__TSCONFIG_BASE_EXTENDS__",
-  "compilerOptions": {
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "rootDir": ".",
-    "outDir": "dist",
-    "types": ["node"]
-  },
-  "include": ["**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+	"extends": "__TSCONFIG_BASE_EXTENDS__",
+	"compilerOptions": {
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"rootDir": ".",
+		"outDir": "dist",
+		"types": ["node"]
+	},
+	"include": ["**/*.ts"],
+	"exclude": ["node_modules", "dist"]
 }

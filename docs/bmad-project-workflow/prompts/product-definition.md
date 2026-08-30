@@ -1,0 +1,116 @@
+# Product Definition Web Prompt
+
+Paste the prompt below into a new ChatGPT or Claude web session. Do not add
+technical implementation details before the product boundaries are established.
+
+```text
+Act as a rigorous product strategist, business analyst, and domain modeler.
+Help me turn an initial product idea into a complete evidence-aware handoff for
+an AI-assisted software project.
+
+Interview me before producing files. Ask exactly one unresolved question at a
+time. Reuse facts already established and challenge weak assumptions rather
+than accepting them politely. Explore at least:
+
+- target users, buyers, and affected stakeholders;
+- the current problem and existing alternatives, including doing nothing;
+- value proposition and measurable customer and business outcomes;
+- business model, pricing assumptions, acquisition, activation, and retention;
+- product scope, non-goals, release boundaries, and material edge cases;
+- critical user and operational flows;
+- domain language, core entities, ownership, lifecycle, and sensitive data;
+- integrations and external ownership boundaries;
+- commercial, regulatory, operational, design, security, and technical risks;
+- assumptions, evidence, open questions, and invalidation conditions;
+- an outcome-oriented initial map of Modules, Features, and independently
+  deliverable Issues.
+
+Do not force Scrum, Epics, User Stories, Sprints, story points, or S/M/L sizing.
+Do not create code tasks, choose files, prescribe internal abstractions, or
+invent facts. Mark uncertainty explicitly.
+
+When you believe the product boundaries are coherent, present a concise final
+checkpoint covering problem, users, business outcome, scope, non-goals, major
+decisions, risks, and release boundary. Wait for my explicit approval.
+
+After approval, export a directory named product-input containing exactly these
+seven Markdown files:
+
+00-handoff-manifest.md
+01-product-brief.md
+02-business-and-market.md
+03-product-requirements.md
+04-domain-and-data.md
+05-risks-and-open-questions.md
+06-initial-work-map.md
+
+Use the exact titles and headings below. Every file must contain the same
+concrete "- Project: ..." value.
+
+00-handoff-manifest.md
+# Product Handoff Manifest
+## Bundle Metadata
+## File Inventory
+## Known Omissions
+Metadata must include Bundle version 1, Bundle status original, Source model,
+Output language, and Generated on.
+
+01-product-brief.md
+# Product Brief
+## Problem
+## Users And Buyers
+## Value Proposition
+## Outcomes
+## Scope
+## Non-Goals
+
+02-business-and-market.md
+# Business And Market
+## Business Model
+## Market And Alternatives
+## Positioning
+## Adoption And Distribution
+## Pricing Assumptions
+## Success Measures
+
+03-product-requirements.md
+# Product Requirements
+## Capabilities
+## Critical Flows
+## Constraints
+## Outcome Criteria
+## Release Boundaries
+
+04-domain-and-data.md
+# Domain And Data
+## Domain Language
+## Core Entities And Relationships
+## Ownership And Lifecycle
+## Sensitive Data
+## Integration Boundaries
+
+05-risks-and-open-questions.md
+# Risks And Open Questions
+## Confirmed Decisions
+## Assumptions
+## Risks
+## Open Questions
+## Invalidation Conditions
+
+06-initial-work-map.md
+# Initial Work Map
+## Modules
+## Features
+## Issues
+## Dependencies
+## Deferred Candidates
+
+The manifest inventory must list all seven filenames and Known Omissions must
+say None or name each omission explicitly. Work-map entries are candidates, not
+published tracker items.
+
+If this interface supports downloadable files, create the directory or a ZIP.
+Otherwise return seven separate fenced Markdown blocks, each preceded by its
+exact filename. Do not add REVIEW.md; that belongs only to an independent
+reviewed replacement bundle.
+```

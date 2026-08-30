@@ -1,44 +1,46 @@
 {
-  "name": "boilerplate",
-  "private": true,
-  "type": "module",
-  "description": "Project boilerplate generator with scratch and migration modes",
-  "scripts": {
-    "boilerplate": "tsx tooling/boilerplate-cli/src/index.ts",
-    "init": "pnpm boilerplate init",
-    "spec:init": "pnpm boilerplate spec:init",
-    "scaffold": "pnpm boilerplate scaffold",
-    "migrate": "pnpm boilerplate migrate",
-    "migrate:apply": "pnpm boilerplate migrate:apply",
-    "doctor": "pnpm boilerplate doctor",
-    "bmad:install": "scripts/install-bmad.sh",
-    "bmad:install:stable": "BMAD_INSTALLER=bmad-method scripts/install-bmad.sh",
-    "stack:adopt": "scripts/adopt-stack.sh",
-    "adopt:repo": "scripts/adopt-stack.sh",
-    "adopt:repo:dry": "scripts/adopt-stack.sh --dry-run",
-    "adopt:repo:force": "scripts/adopt-stack.sh --force",
-    "check": "tsc -p tsconfig.json --noEmit && biome check .",
-    "check:fix": "biome check --write .",
-    "test:unit": "node --import tsx --test tooling/boilerplate-cli/tests/*.test.ts",
-    "test": "pnpm test:unit && pnpm check",
-    "build": "tsc -p tsconfig.json",
-    "prepare": "husky install || true"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.0.6",
-    "@types/node": "^22.15.18",
-    "husky": "^8.0.3",
-    "tsx": "^4.20.6",
-    "typescript": "^5.5.4"
-  },
-  "dependencies": {
-    "@inquirer/prompts": "^7.10.1",
-    "commander": "^13.1.0",
-    "zod": "^3.23.8"
-  },
-  "engines": {
-    "pnpm": ">=10",
-    "node": ">=20"
-  },
-  "packageManager": "pnpm@10.26.0"
+	"name": "boilerplate",
+	"private": true,
+	"type": "module",
+	"description": "Project boilerplate generator with scratch and migration modes",
+	"scripts": {
+		"boilerplate": "tsx tooling/boilerplate-cli/src/index.ts",
+		"init": "pnpm boilerplate init",
+		"scaffold": "pnpm boilerplate scaffold",
+		"migrate": "pnpm boilerplate migrate",
+		"migrate:apply": "pnpm boilerplate migrate:apply",
+		"doctor": "pnpm boilerplate doctor",
+		"bmad:install": "scripts/install-bmad.sh",
+		"bmad:install:stable": "scripts/install-bmad.sh",
+		"bmad:install:preview": "BMAD_INSTALLER=bmad-method@next BMAD_CHANNEL=next scripts/install-bmad.sh",
+		"bmad:validate": "node scripts/bmad-workflow-pack.mjs validate --target . --upstream",
+		"stack:adopt": "scripts/adopt-stack.sh",
+		"adopt:repo": "scripts/adopt-stack.sh",
+		"adopt:repo:dry": "scripts/adopt-stack.sh --dry-run",
+		"adopt:repo:force": "scripts/adopt-stack.sh --force",
+		"check": "tsc -p tsconfig.json --noEmit && biome check .",
+		"check:fix": "biome check --write .",
+		"test:unit": "node --import tsx --test tooling/boilerplate-cli/tests/*.test.ts tooling/boilerplate-cli/tests/*.test.mjs",
+		"test:release-notes": "PYTHONDONTWRITEBYTECODE=1 python3 .boilerplate/bmad-workflow-pack/internal-skills/update-business-release-notes/tests/test_collect_releases.py",
+		"test": "pnpm test:unit && pnpm test:release-notes && pnpm check",
+		"build": "tsc -p tsconfig.json",
+		"prepare": "husky install || true"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.4",
+		"@types/node": "^22.15.18",
+		"husky": "^8.0.3",
+		"tsx": "^4.20.6",
+		"typescript": "^5.5.4"
+	},
+	"dependencies": {
+		"@inquirer/prompts": "^7.10.1",
+		"commander": "^13.1.0",
+		"zod": "^3.23.8"
+	},
+	"engines": {
+		"pnpm": ">=10",
+		"node": ">=22.20"
+	},
+	"packageManager": "pnpm@10.26.0"
 }

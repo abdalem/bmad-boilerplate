@@ -5,14 +5,6 @@
   "workspaceFolder": "/workspaces/__PROJECT_SLUG__",
   "shutdownAction": "stopCompose",
   "mounts": ["type=bind,source=${USERPROFILE:-$HOME}/.ssh,target=/home/node/.ssh,readonly"],
-  "features": {
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "24"
-    },
-    "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/skriptfabrik/devcontainer-features/infisical-cli:1": {}
-  },
   "customizations": {
     "vscode": {
       "extensions": ["biomejs.biome", "ms-azuretools.vscode-docker", "GitHub.copilot"],

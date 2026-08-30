@@ -2,10 +2,15 @@
 
 Use BMAD as the primary planning and delivery workflow.
 
-Start with `bmad-help` whenever the next step is unclear. BMAD owns product
-discovery, PRDs, architecture, stories, and workflow sequencing. This repo owns
-technical stack conventions, devcontainer setup, templates, and deployment
-recipes.
+Use `bmad-start-project` for an unconfigured boilerplate clone. It owns technical
+selection, product import or direct discovery, initial Figma routing, and the
+first actionable Work Item. Use `bmad-update-project` before adopting or
+modernizing an existing repository, especially when its legacy runtime must be
+proven first.
+
+Start normal ticket work in an established project with
+`bmad-publish-work-item`. Use `bmad-workflow-setup` separately for onboarding or
+explicit reconfiguration.
 
 For existing repos, prefer host-side adoption:
 
@@ -16,5 +21,6 @@ For existing repos, prefer host-side adoption:
 Then work from the target repo's own devcontainer. Do not adapt an existing repo
 from a separate boilerplate devcontainer.
 
-The old repo-local `project-brainstorming` and `ticket-refinement` skills are
-legacy fallback only. Prefer BMAD workflows and BMAD-generated artifacts.
+Project scenarios follow `docs/bmad-project-workflow/`. Work Item delivery
+follows `docs/bmad-work-item-workflow/` and the project policy. Use `bmad-build`
+for implementation and never commit automatically.

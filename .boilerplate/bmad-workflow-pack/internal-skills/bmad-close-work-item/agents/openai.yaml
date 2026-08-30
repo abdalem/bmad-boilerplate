@@ -1,0 +1,4 @@
+interface:
+  display_name: "BMAD Close Work Item"
+  short_description: "Verify, document, and close a Work Item"
+  default_prompt: "Use $bmad-close-work-item to verify and close APP-001, transfer durable knowledge, update its tracker, and request approval before ticket-scoped cleanup."

@@ -1,7 +1,7 @@
 {
-  "extends": "__TSCONFIG_BASE_EXTENDS__",
-  "compilerOptions": {
-    "jsx": "react-jsx"
-  },
-  "include": ["**/*.ts", "**/*.tsx"]
+	"extends": "__TSCONFIG_BASE_EXTENDS__",
+	"compilerOptions": {
+		"jsx": "react-jsx"
+	},
+	"include": ["**/*.ts", "**/*.tsx"]
 }

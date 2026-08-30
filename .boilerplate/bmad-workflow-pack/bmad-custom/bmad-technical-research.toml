@@ -1,0 +1,10 @@
+[workflow]
+
+activation_steps_append = [
+  "Before creating or locating feature-scoped artifacts, determine the work item ID. If the user already provided one, use it. If not, ask for it before choosing output paths. Normalize it to lowercase for folder paths, for example APP-001 -> app-001, and store it as work_item_id for this run. Preserve the original ID in artifact titles or frontmatter when useful.",
+  "For this run, after resolving work_item_id, treat {planning_artifacts}/{work_item_id} as the effective planning_artifacts folder. Write research outputs under {planning_artifacts}/{work_item_id}/research/.",
+]
+persistent_facts = [
+  "file:{project-root}/_bmad/custom/guidelines/kiss.md",
+  "Feature-scoped BMAD artifacts are grouped by normalized work item ID. Planning artifacts live under {planning_artifacts}/{work_item_id}; implementation artifacts live under {implementation_artifacts}/{work_item_id}.",
+]
