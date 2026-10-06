@@ -1,6 +1,5 @@
 [mcp_servers.chrome-devtools]
-command = "bash"
-args = [
-	"-lc",
-	"IP=$(getent hosts host.docker.internal | awk '{print $1; exit}'); exec npx -y chrome-devtools-mcp@latest --browser-url=http://$IP:9222"
-]
+command = "node"
+cwd = "/home/node"
+args = ["/workspaces/boilerplate/.devcontainer/chrome-mcp.cjs"]
+env_vars = ["REMOK_CHROME_URL"]

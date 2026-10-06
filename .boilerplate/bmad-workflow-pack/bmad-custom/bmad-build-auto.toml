@@ -1,0 +1,17 @@
+[workflow]
+
+activation_steps_append = [
+  "Read repository AGENTS.md and inherit any existing Work Item contract's Scope, Non-Goals, Acceptance Criteria, Fixed Decisions, and approved design references. A local contract is optional; use the supplied intent/spec when absent. Preserve semantic type boundaries and Figma approval gates from project governance.",
+  "Never commit, push, or create a pull request automatically; act only with explicit user authorization and carry existing authorization forward. Keep unattended work within approved scope and use the smallest clear implementation (KISS).",
+]
+
+implementation_handoff = """
+Launch a subagent with no prior conversation context, with this prompt:
+
+> Read {spec_file} fully and every file listed in its frontmatter context. Read repository AGENTS.md before implementation. If a Work Item contract exists, inherit its Scope, Non-Goals, Acceptance Criteria, Fixed Decisions, and approved design references; otherwise use the spec's supplied intent.
+>
+> Prefer the smallest clear implementation (KISS). Never commit, push, or create a pull request automatically; explicit user authorization is required. Report changes, verification, anything incomplete or risky, and the recommended next prompt.
+"""
+
+# Inherit upstream review_layers unchanged.
+on_complete = "Report terminal verification, review evidence and remaining risks. Never commit, push, or create a pull request automatically; require explicit user authorization. A completed result proceeds to bmad-close-work-item."

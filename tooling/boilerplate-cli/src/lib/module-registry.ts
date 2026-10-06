@@ -124,6 +124,8 @@ const rootPackageJson = (manifest: ProjectManifest) => {
 					"echo 'Review package-scoped deployment docs under docs/deployment/'",
 				'bmad:install': 'scripts/install-bmad.sh',
 				'bmad:install:stable': 'scripts/install-bmad.sh',
+				'bmad:install:latest':
+					'BMAD_INSTALLER=bmad-method@latest scripts/install-bmad.sh',
 				'bmad:install:preview':
 					'BMAD_INSTALLER=bmad-method@next BMAD_CHANNEL=next scripts/install-bmad.sh',
 				'bmad:status':
@@ -165,7 +167,7 @@ pnpm bmad:install
 If project inception is not complete, invoke \`bmad-start-project\` to import or
 discover the product, route initial Figma and BMAD work, and publish the first
 actionable Work Item. In an established project, start normal delivery with
-\`bmad-publish-work-item\`. Use \`bmad-workflow-setup\` separately for onboarding
+\`bmad-build\` for actionable items, or \`bmad-publish-work-item\` to refine unclear intent. Use \`bmad-workflow-setup\` separately for onboarding
 or workflow reconfiguration.
 
 ## Package Topology

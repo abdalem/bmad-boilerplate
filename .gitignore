@@ -65,3 +65,11 @@ _bmad/*
 !_bmad/custom/
 _bmad/custom/*
 !_bmad/custom/project-workflow.toml
+
+# temporary Work Item memory and machine-local overrides
+_bmad-output/
+.tmp/
+.devcontainer/docker-compose.vps.yml
+.boilerplate/adoption/
+.boilerplate/bmad-install-status.json
+.boilerplate/bmad-workflow-pack-state.json

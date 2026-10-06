@@ -141,6 +141,8 @@ const ensureRootWorkflowScripts = async (targetPath: string) => {
 	const scripts = (packageJson.scripts ?? {}) as Record<string, string>;
 	scripts['bmad:install'] = 'scripts/install-bmad.sh';
 	scripts['bmad:install:stable'] = 'scripts/install-bmad.sh';
+	scripts['bmad:install:latest'] =
+		'BMAD_INSTALLER=bmad-method@latest scripts/install-bmad.sh';
 	scripts['bmad:install:preview'] =
 		'BMAD_INSTALLER=bmad-method@next BMAD_CHANNEL=next scripts/install-bmad.sh';
 	scripts['bmad:status'] =

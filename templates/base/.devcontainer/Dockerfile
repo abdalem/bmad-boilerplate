@@ -29,6 +29,7 @@ RUN apt-get update \
         software-properties-common \
         sudo \
         unzip \
+        util-linux \
         wget \
         xz-utils \
     && apt-get clean \
@@ -50,7 +51,7 @@ FROM base-system AS dev-tools
 RUN mkdir -p /etc/apt/keyrings \
     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
     && chmod a+r /etc/apt/keyrings/docker.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" > /etc/apt/sources.list.d/docker.list \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" > /etc/apt/sources.list.d/docker.list \
     && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg \
     && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" > /etc/apt/sources.list.d/github-cli.list \
@@ -96,6 +97,7 @@ USER root
 FROM dev-tools AS final
 ENV NODE_ENV=development
 ENV PNPM_HOME=/home/node/.local/share/pnpm
+ENV PATH=/home/node/.local/bin:${PNPM_HOME}:${PATH}
 ENV APP_PATH=/workspaces/__PROJECT_SLUG__
 
 RUN apt-get autoremove -y \
@@ -104,5 +106,7 @@ RUN apt-get autoremove -y \
 
 WORKDIR $APP_PATH
 USER node
+
+RUN bash -c 'command -v pnpm && command -v flock'
 
 ENTRYPOINT ["sleep", "infinity"]

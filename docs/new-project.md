@@ -47,6 +47,7 @@ It guides you through:
 - Product bundle import or direct discovery.
 - Deep business, user, domain, scope, and risk challenge.
 - Required BMAD product, research, UX, and architecture work only.
+- Concise governance via `bmad-project-context setup` and stable workflow policy.
 - Initial Figma design for visual products.
 - Initial work-map approval and the first published actionable Work Item.
 
@@ -57,26 +58,22 @@ belongs in `.boilerplate/project-manifest.json`.
 ## 4. Continue Normal Delivery
 
 ```text
-bmad-publish-work-item
+Actionable Feature / Issue / Bug -> bmad-build -> bmad-close-work-item
 ```
 
-It inspects relevant evidence, challenges the contract one question at a time,
-publishes or prepares the tracker item, writes its temporary `work-item.md`, and
-returns the first next prompt. If project policy is missing, publication runs
-only the minimal inline setup required to continue.
+Supply a tracker URL/ID, local path, pasted requirement, or explicit intent.
+Build investigates before choosing ceremony, implements, verifies, reviews, and
+repairs. A local `work-item.md` is optional; existing product decisions and
+approved Figma references remain binding.
 
-Run `bmad-workflow-setup` separately only when onboarding or explicitly changing
-tracker, taxonomy, language, Figma, automation, or release-note policy.
+Use `bmad-publish-work-item` for new items, Request qualification, unclear scope,
+or product refinement. Run `bmad-workflow-setup` for onboarding or explicit
+tracker, taxonomy, language, Figma, automation, or release-note reconfiguration.
+Specification, research, UX/Figma, architecture, and specialist verification
+are added only when evidence requires them. Human review uses `bmad-walkthrough`.
 
-Use the adaptive lifecycle documented in `docs/bmad-work-item-workflow/`:
-
-```text
-Refine -> Design when needed -> Prepare only what is needed -> Build -> Verify -> Close
-```
-
-Clear cohesive Features, Issues, and Bugs route directly to `bmad-build`. Design,
-specification, research, architecture, and risk-based verification are added
-only when evidence requires them.
+See `docs/bmad-work-item-workflow/` for the shared workflow. Use project-context
+refresh, record, or audit when instructions need maintenance.
 
 ## 5. Enable Browser Automation When Needed
 

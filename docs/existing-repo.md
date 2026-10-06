@@ -79,14 +79,16 @@ or sandbox policies.
 
 ## 5. Continue Delivery
 
-In Codex or Claude Code, start normal ticket work with
-`bmad-publish-work-item`. It validates existing policy and performs minimal
-inline setup only when required. Run `bmad-workflow-setup` separately for
-onboarding or explicit policy reconfiguration.
+Use `bmad-project-context adopt` to maintain concise repository instructions.
+In Codex or Claude Code, actionable cohesive Features, Issues, and Bugs go to
+`bmad-build`, then `bmad-close-work-item`. Supply the tracker ID or URL, pasted
+intent, or an existing local contract. A `work-item.md` is optional.
 
-Use `docs/bmad-work-item-workflow/` for adaptive delivery and `docs/stack/` for
-technical conventions. Clear cohesive Features, Issues, and Bugs route to
-`bmad-build`; every emitted Work Item contains the first next prompt.
+Use `bmad-publish-work-item` to create or refine unclear items. Run
+`bmad-workflow-setup` separately for onboarding or explicit policy reconfiguration.
+Build investigates implementation complexity and includes independent review;
+standalone `bmad-code-review` is optional for external work or explicit review.
+Use `docs/bmad-work-item-workflow/` for delivery and `docs/stack/` for conventions.
 
 To use browser automation, start a dedicated host Chrome profile on port `9222`
 with a non-default `--user-data-dir`. The generated MCP command resolves the

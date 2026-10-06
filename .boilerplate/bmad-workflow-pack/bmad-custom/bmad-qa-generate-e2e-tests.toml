@@ -1,10 +1,6 @@
 [workflow]
 
 activation_steps_append = [
-  "If the user did not provide an explicit test summary path, determine the work item ID before creating feature-level test artifacts. If the user already provided one, use it. If not, ask for it before choosing output paths. Normalize it to lowercase for folder paths, for example APP-001 -> app-001, and store it as work_item_id for this run.",
-  "For this run, after resolving work_item_id, treat {implementation_artifacts}/{work_item_id} as the effective implementation_artifacts folder. Save the test automation summary under {implementation_artifacts}/{work_item_id}/tests/test-summary.md unless the user provides an explicit path.",
-]
-persistent_facts = [
-  "file:{project-root}/_bmad/custom/guidelines/kiss.md",
-  "Feature-scoped BMAD artifacts are grouped by normalized work item ID. Planning artifacts live under {planning_artifacts}/{work_item_id}; implementation artifacts live under {implementation_artifacts}/{work_item_id}.",
+  "Use an explicit test summary path when supplied. Otherwise use a provided Work Item ID, normalized to lowercase as work_item_id. For identity-free delivery use the supplied Build spec/output path or upstream project-level defaults; do not ask for an ID or create a placeholder contract merely to choose output paths.",
+  "When work_item_id is available, treat {implementation_artifacts}/{work_item_id} as the effective implementation_artifacts folder and save the test summary under {implementation_artifacts}/{work_item_id}/tests/test-summary.md unless an explicit path is provided.",
 ]

@@ -1,6 +1,0 @@
-{
-	"state": "ready",
-	"stage": "complete",
-	"message": "BMAD workflow pack is ready. Use bmad-start-project for a new clone, bmad-update-project for an existing repository, or bmad-publish-work-item for normal delivery.",
-	"updatedAt": "2026-08-30T12:08:05.551Z"
-}

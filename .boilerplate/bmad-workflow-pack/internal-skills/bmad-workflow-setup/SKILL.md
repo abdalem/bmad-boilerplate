@@ -96,4 +96,4 @@ Validate after writing:
 node scripts/bmad-workflow-pack.mjs validate --target .
 ```
 
-Report the policy path, identity mode, tracker, semantic type mappings, design status, automation status, and release-note status. Recommend `bmad-publish-work-item` as the normal next action.
+Report the policy path, identity mode, tracker, semantic type mappings, design status, automation status, and release-note status. Recommend `bmad-build` for an already actionable Feature, Issue, or Bug; use `bmad-publish-work-item` for creation, qualification, or refinement. Setup configures stable policy and does not classify implementation complexity.

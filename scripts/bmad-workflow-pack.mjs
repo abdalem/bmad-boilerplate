@@ -47,6 +47,7 @@ try {
 		const result = await validateWorkflowPack({
 			target,
 			requireUpstream: has('--upstream'),
+			skipExternalSkills: has('--skip-external-skills'),
 		});
 		console.log(JSON.stringify(result, null, 2));
 	} else if (command === 'status') {

@@ -1,14 +1,9 @@
 [workflow]
 
 activation_steps_append = [
-  "When invoked for a Work Item, determine its ID from the explicit request or contract path, normalize it to lowercase as work_item_id, read its contract and routed planning sources, and write the delivery spine under {project-root}/_bmad-output/implementation-artifacts/{work_item_id}/architecture. For project-level architecture, preserve upstream project-level behavior.",
-  "Treat Fixed Decisions in work-item.md as inherited and binding. Architecture may decide internal delivery boundaries but must route back to bmad-publish-work-item before changing product scope or public contracts.",
+  "When invoked for a Work Item, determine its ID from the explicit request or contract path, normalize it to lowercase as work_item_id, read its contract when present and targeted routed planning sources, and write the delivery spine under {project-root}/_bmad-output/implementation-artifacts/{work_item_id}/architecture. For project-level architecture, preserve upstream project-level behavior.",
+  "Treat Fixed Decisions in an existing work-item.md as inherited and binding. Architecture may decide internal delivery boundaries but must route back to bmad-publish-work-item before changing product scope or public contracts.",
   "When a Feature is not one cohesive independently verifiable change, return proposed external child Issues rather than internal delivery hierarchy. At completion return one next prompt.",
-]
-
-persistent_facts = [
-  "file:{project-root}/_bmad/custom/guidelines/kiss.md",
-  "Work Item planning artifacts live under {project-root}/_bmad-output/planning-artifacts/{work_item_id}; implementation artifacts live under {project-root}/_bmad-output/implementation-artifacts/{work_item_id}.",
 ]
 
 on_complete = "Return the architecture path and one copy-ready next prompt. Never commit automatically."

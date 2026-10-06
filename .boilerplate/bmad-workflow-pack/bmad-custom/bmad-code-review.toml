@@ -1,14 +1,9 @@
 [workflow]
 
 activation_steps_append = [
-  "Determine the Work Item ID from the request or contract path before scanning artifacts. Normalize it to lowercase for paths and store it as work_item_id.",
-  "Read {project-root}/_bmad-output/planning-artifacts/{work_item_id}/work-item.md and only the matching implementation evidence. Review against acceptance criteria, fixed decisions, scope boundaries, and approved design references.",
+  "Use standalone review for code written outside Build, another branch or PR, historical diffs, an explicit additional review request, or a concrete specialist risk. Do not automatically review completed Build output again.",
+  "When a Work Item ID is supplied, normalize it to lowercase as work_item_id for matching artifacts. For standalone branch, PR, or historical diff review without an ID, use the supplied scope directly and do not require ticket artifacts.",
+  "Read an existing {project-root}/_bmad-output/planning-artifacts/{work_item_id}/work-item.md when present; otherwise use supplied intent or the Build spec. Read only matching implementation evidence. Review against acceptance criteria, fixed decisions, scope boundaries, and approved design references.",
   "Report only concrete acceptance gaps, regressions, unsafe scope expansion, fixed-decision violations, or missing meaningful verification. Do not prescribe unrelated refactors.",
   "Return one next prompt: route blocking findings to bmad-build and a clean review to bmad-close-work-item. Never commit automatically.",
-]
-
-persistent_facts = [
-  "file:{project-root}/_bmad/custom/guidelines/kiss.md",
-  "Work Item planning artifacts live under {project-root}/_bmad-output/planning-artifacts/{work_item_id}; implementation evidence lives under {project-root}/_bmad-output/implementation-artifacts/{work_item_id}.",
-  "Never create commits automatically.",
 ]

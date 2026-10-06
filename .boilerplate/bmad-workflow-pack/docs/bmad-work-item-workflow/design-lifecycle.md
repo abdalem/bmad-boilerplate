@@ -1,6 +1,6 @@
 # Work Item Design Lifecycle
 
-Every deliverable Work Item records one design-impact value:
+For design-dependent work, determine the design-impact value in the current intent/spec or existing Work Item contract:
 
 - `none`
 - `new-screen`
@@ -17,7 +17,7 @@ Before Build, confirm:
 2. Default, loading, empty, error, disabled, and success states are defined when relevant.
 3. Responsive behavior and supported breakpoints are explicit.
 4. Accessibility-sensitive interactions are explicit.
-5. Approved Figma file and node links are recorded in `work-item.md`.
+5. Approved Figma file and node links are recorded in the tracker intent, Build spec, or existing `work-item.md`.
 6. Approved visual references are stored under the configured durable reference path.
 7. The screen registry points to the current Figma nodes and reference files.
 

@@ -14,6 +14,8 @@ Turn raw intent or an existing tracker item into:
 3. An evidence-based delivery route.
 4. The first immediately runnable next prompt.
 
+Use this skill to create tracker items, qualify Requests, refine vague scope, establish observable acceptance and fixed product decisions, decompose non-cohesive Features, or synchronize refined scope. An already actionable Feature, Issue, or Bug goes directly to `bmad-build`; publication is optional and must not duplicate Build implementation investigation.
+
 Keep publication fast. Ask only questions justified by a missing product fact, contradiction, or material risk found in the supplied request or relevant project evidence.
 
 ## Policy Guard
@@ -30,7 +32,7 @@ Read `_bmad/custom/project-workflow.toml` first.
 
 For an existing external item, use the tracker-issued ID. For a new external item, publish the confirmed tracker payload first when an integration is available, then use the returned ID.
 
-If external publication is unavailable or fails, allocate a confirmed local fallback ID, write the contract under that ID with `Tracker identity: Pending`, and return the exact tracker-ready title and body. Do not route to Build until the external identity is recorded and the folder and contract are normalized to it.
+If external publication is unavailable or fails, allocate a confirmed local fallback ID, write the contract under that ID with `Tracker identity: Pending`, and return the exact tracker-ready title and body. Keep tracker publication status honest and do not invent tracker identity. Pending publication alone does not prevent implementation from explicit approved intent; Build can use that intent without a local contract. Normalize the folder and contract when external identity becomes available.
 
 For local identity, propose the next ID with:
 
@@ -57,7 +59,7 @@ Never default ambiguous work silently. Ask one short type question when evidence
 
 ### 1. Inspect Targeted Evidence
 
-Read project instructions and only the code, tests, configuration, documentation, design references, history, and tracker context relevant to the request. Establish current behavior, product boundaries, comparable patterns, and contradictions.
+Read project instructions and only evidence needed to establish current product behavior, scope, observable acceptance, and contradictions. Do not investigate exact files, functions, classes, local abstractions, implementation sequence, or detailed test structure unless they expose a product contradiction. Leave implementation investigation and ceremony to Build.
 
 Avoid broad repeated repository scans. Reuse evidence already gathered in the current run.
 

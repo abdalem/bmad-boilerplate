@@ -1,13 +1,15 @@
 ---
 name: bmad-review-verification-gap
-description: 'Review a Work Item implementation for changed behavior that could regress without reliable verification catching it, then return the next remediation or closeout prompt.'
+description: 'Standalone verification audit for code written outside BMAD Build, historical changes, or explicitly requested additional verification.'
 ---
 
 # Verification Gap Review
 
+Use this standalone audit for code written outside BMAD Build, a historical diff, or an explicit additional verification request. Build already includes an upstream Verification Gap Reviewer; do not automatically run this skill after Build.
+
 **Goal:** Find changed behavior that could break without reliable verification catching it. Ask one question — "if the behavior this change is supposed to produce broke where it's actually used, would verification fail?" Do not hunt for correctness bugs, but report genuine problems you notice while tracing verification.
 
-When a Work Item ID is provided, read its `work-item.md`, approved design references, implementation evidence, and relevant diff first. Treat its acceptance criteria, fixed decisions, and design behavior as the verification boundary. Inspect only ticket-relevant code and tests.
+When a Work Item ID is provided, read its `work-item.md` when present; otherwise use supplied intent or spec. Read approved design references, implementation evidence, and relevant diff first. Treat its acceptance criteria, fixed decisions, and design behavior as the verification boundary. Inspect only ticket-relevant code and tests.
 
 The main verification gap shapes are:
 

@@ -96,6 +96,56 @@ PROPOSED=()
 BACKED_UP=()
 UNCHANGED=()
 
+# Render before comparing files, including in dry runs. Keep the staging tree
+# outside the target so an invalid identity cannot partially adopt a project.
+RENDER_DIR="$(mktemp -d /tmp/boilerplate-adoption.XXXXXXXX)"
+trap 'rm -rf -- "$RENDER_DIR"' EXIT
+node - "${TARGET_DIR}" "${BOILERPLATE_ROOT}/templates/base" "${RENDER_DIR}" <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+const [target, source, rendered] = process.argv.slice(2);
+const manifestPath = path.join(target, '.boilerplate/project-manifest.json');
+const identity = fs.existsSync(manifestPath)
+  ? JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
+  : {
+      projectName: path.basename(target),
+      projectSlug: path.basename(target).toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, ''),
+    };
+if (typeof identity.projectName !== 'string' || !identity.projectName.trim() ||
+    typeof identity.projectSlug !== 'string' ||
+    !/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(identity.projectSlug) ||
+    identity.projectSlug.length > 63) {
+  throw new Error('Invalid project identity; set projectName and a DNS-safe projectSlug in .boilerplate/project-manifest.json.');
+}
+function renderTree(from, to) {
+  fs.mkdirSync(to, { recursive: true });
+  for (const entry of fs.readdirSync(from, { withFileTypes: true })) {
+    const input = path.join(from, entry.name);
+    const output = path.join(to, entry.name);
+    if (entry.isDirectory()) renderTree(input, output);
+    else {
+      const name = entry.name.endsWith('.json')
+        ? JSON.stringify(identity.projectName).slice(1, -1) : identity.projectName;
+      const content = fs.readFileSync(input, 'utf8')
+        .replaceAll('__PROJECT_NAME__', () => name)
+        .replaceAll('__PROJECT_SLUG__', () => identity.projectSlug);
+      fs.writeFileSync(output, content, { mode: fs.statSync(input).mode });
+    }
+  }
+}
+renderTree(source, rendered);
+// An absent MCP adapter must not point into an unverified retained workspace.
+// JSONC/custom configurations stay for manual reconciliation, without guessing.
+const existingConfig = path.join(target, '.devcontainer/devcontainer.json');
+if (fs.lstatSync(existingConfig, { throwIfNoEntry: false })) {
+  let matches = false;
+  try {
+    matches = JSON.parse(fs.readFileSync(existingConfig, 'utf8')).workspaceFolder === `/workspaces/${identity.projectSlug}`;
+  } catch {}
+  if (!matches) fs.writeFileSync(path.join(rendered, '.propose-new-mcp'), '');
+}
+NODE
+
 log() {
   printf '%s\n' "$*"
 }
@@ -122,11 +172,25 @@ write_file() {
   local proposed_path="${PROPOSED_DIR}/${rel_path}"
   local backup_path="${BACKUP_DIR}/${rel_path}"
 
+  if [[ "${FORCE}" -eq 0 && -f "${RENDER_DIR}/.propose-new-mcp" &&
+        ! -e "${target_path}" && ! -L "${target_path}" &&
+        ( "${rel_path}" == '.mcp.json' || "${rel_path}" == '.codex/config.toml' ) ]]; then
+    PROPOSED+=("${rel_path}")
+    if [[ "${DRY_RUN}" -eq 1 ]]; then
+      log "would propose ${rel_path} (retained workspace is unverified)"
+    else
+      mkdir -p "$(dirname "${proposed_path}")"
+      cp "${source_path}" "${proposed_path}"
+      log "proposed ${rel_path} (reconcile the retained devcontainer workspace first)"
+    fi
+    return
+  fi
+
   if [[ "${DRY_RUN}" -eq 1 ]]; then
     if [[ -f "${target_path}" ]] && cmp -s "${source_path}" "${target_path}"; then
       UNCHANGED+=("${rel_path}")
       log "unchanged ${rel_path}"
-    elif [[ -e "${target_path}" ]]; then
+    elif [[ -e "${target_path}" || -L "${target_path}" ]]; then
       PROPOSED+=("${rel_path}")
       log "would propose ${rel_path}"
     else
@@ -143,16 +207,18 @@ write_file() {
     return
   fi
 
-  if [[ ! -e "${target_path}" ]]; then
+  if [[ ! -e "${target_path}" && ! -L "${target_path}" ]]; then
     cp "${source_path}" "${target_path}"
+    make_new_script_executable "${rel_path}" "${target_path}"
     COPIED+=("${rel_path}")
     return
   fi
 
   if [[ "${FORCE}" -eq 1 ]]; then
     mkdir -p "$(dirname "${backup_path}")"
-    cp "${target_path}" "${backup_path}"
+    cp -p "${target_path}" "${backup_path}"
     cp "${source_path}" "${target_path}"
+    make_new_script_executable "${rel_path}" "${target_path}"
     BACKED_UP+=("${rel_path}")
     COPIED+=("${rel_path}")
     return
@@ -160,7 +226,14 @@ write_file() {
 
   mkdir -p "$(dirname "${proposed_path}")"
   cp "${source_path}" "${proposed_path}"
+  make_new_script_executable "${rel_path}" "${proposed_path}"
   PROPOSED+=("${rel_path}")
+}
+
+make_new_script_executable() {
+  case "$1" in
+    *.sh|.husky/*|scripts/bmad-workflow-pack.mjs) chmod +x "$2" ;;
+  esac
 }
 
 copy_tree() {
@@ -175,7 +248,7 @@ copy_tree() {
 
 copy_base_file() {
   local rel_path="$1"
-  write_file "${rel_path}" "${BOILERPLATE_ROOT}/templates/base/${rel_path}"
+  write_file "${rel_path}" "${RENDER_DIR}/${rel_path}"
 }
 
 ensure_package_script() {
@@ -198,6 +271,7 @@ const pkg = fs.existsSync(packagePath)
 pkg.scripts ??= {};
 pkg.scripts['bmad:install'] = 'scripts/install-bmad.sh';
 pkg.scripts['bmad:install:stable'] = 'scripts/install-bmad.sh';
+pkg.scripts['bmad:install:latest'] = 'BMAD_INSTALLER=bmad-method@latest scripts/install-bmad.sh';
 pkg.scripts['bmad:install:preview'] = 'BMAD_INSTALLER=bmad-method@next BMAD_CHANNEL=next scripts/install-bmad.sh';
 pkg.scripts['bmad:status'] ??= 'test -d _bmad || test -d _bmad-core || test -d .bmad-core';
 pkg.scripts['bmad:validate'] ??= 'node scripts/bmad-workflow-pack.mjs validate --target . --upstream';
@@ -213,10 +287,10 @@ NODE
 }
 
 write_stack_docs() {
-  write_file "AGENTS.md" "${BOILERPLATE_ROOT}/templates/base/AGENTS.md"
-  write_file "CLAUDE.md" "${BOILERPLATE_ROOT}/templates/base/CLAUDE.md"
-  write_file "docs/stack/README.md" "${BOILERPLATE_ROOT}/templates/base/docs/stack/README.md"
-  write_file "docs/stack/existing-repo-adoption.md" "${BOILERPLATE_ROOT}/templates/base/docs/stack/existing-repo-adoption.md"
+  copy_base_file "AGENTS.md"
+  copy_base_file "CLAUDE.md"
+  copy_base_file "docs/stack/README.md"
+  copy_base_file "docs/stack/existing-repo-adoption.md"
 }
 
 write_report() {
@@ -258,9 +332,9 @@ write_report() {
 
 log "Adopting boilerplate stack into ${TARGET_DIR}"
 
-copy_tree "${BOILERPLATE_ROOT}/templates/base/.devcontainer" ".devcontainer"
-copy_tree "${BOILERPLATE_ROOT}/templates/base/.codex" ".codex"
-copy_tree "${BOILERPLATE_ROOT}/templates/base/.husky" ".husky"
+copy_tree "${RENDER_DIR}/.devcontainer" ".devcontainer"
+copy_tree "${RENDER_DIR}/.codex" ".codex"
+copy_tree "${RENDER_DIR}/.husky" ".husky"
 copy_base_file ".mcp.json"
 copy_base_file ".dockerignore"
 copy_base_file ".editorconfig"
@@ -312,11 +386,6 @@ if [[ "${DRY_RUN}" -eq 1 ]]; then
   log "Dry run complete."
   exit 0
 fi
-
-chmod +x "${TARGET_DIR}/scripts/install-bmad.sh" || true
-chmod +x "${TARGET_DIR}/scripts/bmad-workflow-pack.mjs" || true
-chmod +x "${TARGET_DIR}/.devcontainer/"*.sh || true
-chmod +x "${TARGET_DIR}/.husky/pre-commit" || true
 
 if [[ "${SKIP_BMAD}" -eq 0 ]]; then
   if node -e 'const [major, minor] = process.versions.node.split(".").map(Number); process.exit(major > 22 || (major === 22 && minor >= 20) ? 0 : 1)' >/dev/null 2>&1; then

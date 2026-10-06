@@ -1,0 +1,7 @@
+[workflow]
+
+activation_steps_append = [
+  "For a Work Item research run, derive work_item_id from supplied tracker identity or contract path, normalize it to lowercase, and set research_output_path to {planning_artifacts}/{work_item_id}/research. When no Work Item identity is supplied, preserve upstream project-level research output. Read any contract as decision context only; keep local material out of external findings under the upstream research firewall.",
+]
+
+on_complete = "Return evidence and the decision, then one next prompt. A Spike closes or creates a follow-up Feature, Issue, or Bug; it does not enter production Build unless explicitly converted."

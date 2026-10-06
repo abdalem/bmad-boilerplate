@@ -9,9 +9,10 @@ Recommended order:
 4. Review `.boilerplate/adoption/report.md` and proposed conflicts.
 5. Open the existing repo in its own devcontainer.
 6. Run `pnpm bmad:install` if BMAD was not installed during adoption.
-7. Start normal ticket work with `bmad-publish-work-item`; it performs minimal
-   inline policy setup only when required.
-8. Run `bmad-workflow-setup` separately only for onboarding or explicit policy
+7. Use `bmad-project-context adopt` to maintain concise repository instructions.
+8. Start actionable ticket work with `bmad-build`, then `bmad-close-work-item`;
+   use `bmad-publish-work-item` to create or refine unclear items.
+9. Run `bmad-workflow-setup` separately only for onboarding or explicit policy
    reconfiguration.
 
 The devcontainer belongs to the repo being worked on. Do not work on an existing

@@ -24,7 +24,9 @@
 		"test:release-notes": "PYTHONDONTWRITEBYTECODE=1 python3 .boilerplate/bmad-workflow-pack/internal-skills/update-business-release-notes/tests/test_collect_releases.py",
 		"test": "pnpm test:unit && pnpm test:release-notes && pnpm check",
 		"build": "tsc -p tsconfig.json",
-		"prepare": "husky install || true"
+		"prepare": "husky install || true",
+		"bmad:install:latest": "BMAD_INSTALLER=bmad-method@latest scripts/install-bmad.sh",
+		"test:bmad-compatibility": "BMAD_COMPATIBILITY_TARGET=. node --test tooling/boilerplate-cli/tests/bmad-upstream.test.mjs"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.4",

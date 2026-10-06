@@ -11,6 +11,8 @@ The skill asks one unresolved question at a time. It first confirms the
 technical topology, then defines the product, routes initial design and
 planning, and publishes the first actionable Work Item.
 
+After technical/product inception, run `bmad-project-context setup` for concise AGENTS.md governance and `bmad-workflow-setup` for stable tracker/design policy. Do not create unnecessary hierarchy or delivery artifacts during inception.
+
 ## Product Definition Options
 
 Choose one:
@@ -36,4 +38,4 @@ Project inception is complete when the repository has:
 - An approved initial work map.
 - One published actionable Work Item with its first next prompt.
 
-After that, start ordinary work with `bmad-publish-work-item`.
+After that, start actionable Features, Issues, and Bugs with `bmad-build`, then `bmad-close-work-item`. Use `bmad-publish-work-item` for new or vague intent. Use project-context refresh when conventions change, record after repeated mistakes, and audit to check drift.

@@ -1,8 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
+import { mkdir, stat, writeFile } from 'node:fs/promises';
 import { createDefaultManifest, writeManifest } from '../src/lib/manifest.js';
-import { exists, readText } from '../src/lib/fs-utils.js';
+import { copyTemplateEntry, exists, readText } from '../src/lib/fs-utils.js';
 import { scaffoldProject } from '../src/lib/scaffold.js';
 import { makeTempDir, removeTempDir } from './helpers.js';
 import type { PresetName } from '../src/lib/types.js';
@@ -19,6 +20,28 @@ const scaffoldFromPreset = async (root: string, preset: PresetName) => {
 
 	return manifest;
 };
+
+test('extensionless template filenames render through native-platform paths', async () => {
+	const root = await makeTempDir('template-filenames');
+	try {
+		const source = join(root, 'source', 'nested');
+		await mkdir(source, { recursive: true });
+		for (const filename of ['Dockerfile', '.gitignore', '.editorconfig']) {
+			const sourcePath = join(source, filename);
+			const targetPath = join(root, 'output', filename);
+			await writeFile(sourcePath, 'workspace=__PROJECT_SLUG__\n');
+			await copyTemplateEntry({
+				sourcePath,
+				targetPath,
+				replacements: { '__PROJECT_SLUG__': 'rendered-project' },
+				overwrite: false,
+			});
+			assert.equal(await readText(targetPath), 'workspace=rendered-project\n');
+		}
+	} finally {
+		await removeTempDir(root);
+	}
+});
 
 test('standalone archetypes render at repo root with standalone tsconfig extends', async () => {
 	const presets: PresetName[] = ['web-app', 'api', 'mobile'];
@@ -110,7 +133,7 @@ test('generic web-api scaffold omits ticketing code', async () => {
 		);
 		assert.equal(
 			await exists(join(root, '_bmad/custom/guidelines/kiss.md')),
-			true,
+			false,
 		);
 		assert.equal(
 			await exists(join(root, 'docs/bmad-project-workflow/index.md')),
@@ -137,6 +160,24 @@ test('generic web-api scaffold omits ticketing code', async () => {
 			join(root, '.devcontainer/devcontainer.json'),
 		);
 		assert.doesNotMatch(devcontainer, /"features"|ghcr\.io/);
+		const config = JSON.parse(devcontainer);
+		assert.equal(config.shutdownAction, 'none');
+		assert.equal(
+			config.customizations.vscode.settings['remote.autoForwardPorts'],
+			false,
+		);
+		assert.deepEqual(config.forwardPorts, []);
+		assert.equal(config.workspaceFolder, `/workspaces/${manifest.projectSlug}`);
+		assert.match(config.remoteEnv.PATH, /\/home\/node\/\.local\/bin/);
+		assert.match(config.postStartCommand, /install-agent-clis\.sh/);
+		for (const script of ['setup.sh', 'install-agent-clis.sh']) {
+			assert.ok((await stat(join(root, '.devcontainer', script))).mode & 0o111);
+		}
+		const chromeHelper = await readText(
+			join(root, '.devcontainer/chrome-mcp.cjs'),
+		);
+		assert.match(chromeHelper, /REMOK_CHROME_URL/);
+		assert.match(chromeHelper, /host\.docker\.internal/);
 
 		const dockerfile = await readText(join(root, '.devcontainer/Dockerfile'));
 		for (const expected of [
@@ -148,6 +189,8 @@ test('generic web-api scaffold omits ticketing code', async () => {
 			'ARG NODE_VERSION="24.15.0"',
 			'SHASUMS256.txt',
 			'https://astral.sh/uv/install.sh',
+			'util-linux',
+			"RUN bash -c 'command -v pnpm && command -v flock'",
 		]) {
 			assert.match(dockerfile, new RegExp(expected.replaceAll('.', '\\.')));
 		}
@@ -156,14 +199,31 @@ test('generic web-api scaffold omits ticketing code', async () => {
 			join(root, '.devcontainer/docker-compose.yml'),
 		);
 		assert.match(compose, /host\.docker\.internal:host-gateway/);
+		assert.match(compose, /node_user_data:\/home\/node/);
 
 		const codexMcp = await readText(join(root, '.codex/config.toml'));
 		const claudeMcp = await readText(join(root, '.mcp.json'));
 		for (const adapter of [codexMcp, claudeMcp]) {
-			assert.match(adapter, /chrome-devtools-mcp@latest/);
-			assert.match(adapter, /host\.docker\.internal/);
-			assert.match(adapter, /9222/);
+			assert.ok(
+				adapter.includes(
+					`/workspaces/${manifest.projectSlug}/.devcontainer/chrome-mcp.cjs`,
+				),
+			);
 			assert.doesNotMatch(adapter, /approval_policy|sandbox_mode/);
+		}
+		assert.match(codexMcp, /env_vars = \["REMOK_CHROME_URL"\]/);
+		for (const content of [
+			devcontainer,
+			dockerfile,
+			compose,
+			codexMcp,
+			claudeMcp,
+			chromeHelper,
+		]) {
+			assert.doesNotMatch(
+				content,
+				/__PROJECT_|\/home\/abbi|100\.80\.27\.19|204\.168\.224\.106|\.workstation|docker-compose\.vps/,
+			);
 		}
 	} finally {
 		await removeTempDir(root);

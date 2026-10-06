@@ -1,23 +1,44 @@
 {
-	"version": "2.1.0",
+	"version": "3.0.0",
 	"bmad": {
-		"defaultInstaller": "bmad-method@latest",
+		"defaultInstaller": "bmad-method@6.12.1",
 		"previewInstaller": "bmad-method@next",
 		"modules": ["bmm", "tea", "cis", "wds"],
-		"tools": ["claude-code", "codex"]
+		"tools": ["claude-code", "codex"],
+		"testedVersion": "6.12.1",
+		"latestInstaller": "bmad-method@latest",
+		"testedModuleVersions": {
+			"tea": "1.27.2",
+			"cis": "0.3.2",
+			"wds": "0.4.3"
+		}
 	},
 	"externalSkills": [
-		{ "source": "vercel-labs/skills", "skill": "find-skills" },
-		{ "source": "github/awesome-copilot", "skill": "refactor" },
 		{
-			"source": "vercel-labs/agent-skills",
-			"skill": "vercel-composition-patterns"
+			"source": "vercel-labs/skills",
+			"skill": "find-skills",
+			"revision": "14cf84aa922cccc7e5b11fee5af9a01b3750fddf"
+		},
+		{
+			"source": "github/awesome-copilot",
+			"skill": "refactor",
+			"revision": "143a3d976b3c1603cc8932984d5e1f28501cb5fc"
 		},
 		{
 			"source": "vercel-labs/agent-skills",
-			"skill": "vercel-react-best-practices"
+			"skill": "vercel-composition-patterns",
+			"revision": "063bee94c3f4df8453406c830b0a7df0f2860278"
 		},
-		{ "source": "vercel-labs/agent-skills", "skill": "web-design-guidelines" }
+		{
+			"source": "vercel-labs/agent-skills",
+			"skill": "vercel-react-best-practices",
+			"revision": "063bee94c3f4df8453406c830b0a7df0f2860278"
+		},
+		{
+			"source": "vercel-labs/agent-skills",
+			"skill": "web-design-guidelines",
+			"revision": "063bee94c3f4df8453406c830b0a7df0f2860278"
+		}
 	],
 	"internalSkills": [
 		"bmad-start-project",
@@ -27,5 +48,6 @@
 		"bmad-close-work-item",
 		"bmad-review-verification-gap",
 		"update-business-release-notes"
-	]
+	],
+	"skillsInstaller": "skills@1.7.0"
 }

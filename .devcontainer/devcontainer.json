@@ -3,12 +3,14 @@
   "dockerComposeFile": "docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/workspaces/boilerplate",
-  "shutdownAction": "stopCompose",
+  "shutdownAction": "none",
+  "remoteEnv": { "PATH": "/home/node/.local/bin:${containerEnv:PATH}" },
   "mounts": ["type=bind,source=${USERPROFILE:-$HOME}/.ssh,target=/home/node/.ssh,readonly"],
   "customizations": {
     "vscode": {
       "extensions": ["biomejs.biome", "ms-azuretools.vscode-docker", "GitHub.copilot"],
       "settings": {
+        "remote.autoForwardPorts": false,
         "terminal.integrated.defaultProfile.linux": "bash",
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "biomejs.biome",
@@ -20,8 +22,8 @@
   },
   "initializeCommand": "./.devcontainer/bootstrap-traefik.sh",
   "postCreateCommand": "./.devcontainer/setup.sh",
-  "postStartCommand": "corepack enable",
-  "forwardPorts": [80, 8080, 3000, 3333],
+  "postStartCommand": "bash .devcontainer/install-agent-clis.sh; corepack enable",
+  "forwardPorts": [],
   "runArgs": ["--init"],
   "remoteUser": "node"
 }

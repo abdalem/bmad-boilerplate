@@ -1,29 +1,19 @@
 [workflow]
 
 activation_steps_append = [
-  "Determine the Work Item ID from the explicit request or contract path before scanning artifacts. Normalize it to lowercase for paths and store it as work_item_id.",
-  "Read {project-root}/_bmad-output/planning-artifacts/{work_item_id}/work-item.md before planning. If it is missing, stop and route to bmad-publish-work-item. If external tracker identity is Pending, stop until publication is confirmed.",
-  "Treat Scope, Non-Goals, Acceptance Criteria, Fixed Decisions, approved design references, and Delivery Route in work-item.md as binding. Implementation details not listed as fixed remain developer-owned.",
-  "Use targeted repository context, apply KISS, and avoid unrelated cleanup, abstractions, dependencies, or broad refactors. Stop and request contract refinement when implementation would change binding product behavior or scope.",
-  "Repository policy overrides Build's default completion behavior: never create a commit, push, or pull request automatically. Leave all changes in the worktree for explicit user review.",
-  "At completion, return verification evidence and one agent-neutral next prompt. Route unresolved implementation gaps back to bmad-build, risk-triggered independent verification to the relevant review skill, and a verified result to bmad-close-work-item.",
+  "Read repository AGENTS.md. Use a tracker URL, ID, local path, pasted requirement, or explicit intent directly; a local work-item.md is optional. When identity is available, normalize it to lowercase as work_item_id for ticket paths.",
+  "If a supplied or ticket-scoped work-item.md exists, read it and inherit Scope, Non-Goals, Acceptance Criteria, Fixed Decisions, and approved design references as binding. When absent, use supplied intent and tracker context; do not require publication or create a placeholder contract. Let upstream Build investigate and choose implementation ceremony.",
+  "Respect semantic type boundaries: Module defines children; Request needs qualification; Spike produces research evidence and a decision, never production implementation unless explicitly converted. A non-cohesive Feature needs external child Issues. Preserve approved Figma design gates. Prefer the smallest clear implementation (KISS).",
+  "Never commit, push, or create a pull request automatically; act only with explicit user authorization. Carry existing authorization forward. Leave implementation details to Build and request refinement only when binding product constraints would change.",
 ]
-
-persistent_facts = [
-  "file:{project-root}/_bmad/custom/guidelines/kiss.md",
-  "file:{project-root}/docs/bmad-work-item-workflow/index.md",
-  "Work Item planning artifacts live under {project-root}/_bmad-output/planning-artifacts/{work_item_id}; implementation evidence lives under {project-root}/_bmad-output/implementation-artifacts/{work_item_id}.",
-  "Never create commits automatically. Explicit user approval is required for every commit, push, or pull request.",
-]
-
-open_spec = ""
 
 implementation_handoff = """
 Launch a subagent with no prior conversation context, with this prompt:
 
-> Read {spec_file} fully and implement it. Also read the Work Item contract and every context file named by the spec. Treat the Work Item scope, non-goals, acceptance criteria, fixed decisions, and approved design references as binding.
+> Read {spec_file} fully and every file listed in its frontmatter context. Read repository AGENTS.md before implementation. If a Work Item contract exists, inherit its Scope, Non-Goals, Acceptance Criteria, Fixed Decisions, and approved design references; otherwise use the spec's supplied intent.
 >
-> Apply KISS, avoid unrelated changes, and do not create a commit. When done, report what changed, how it was verified, anything incomplete or risky, and the recommended next prompt.
+> Prefer the smallest clear implementation (KISS). Never commit, push, or create a pull request automatically; explicit user authorization is required. Report changes, verification, anything incomplete or risky, and the recommended next prompt.
 """
 
-on_complete = "Do not commit, push, or create a pull request. Present verification evidence, remaining risks, and one copy-ready next prompt."
+# Inherit upstream review_layers and oneshot_review_layers unchanged.
+on_complete = "Present implementation, verification, integrated review and repair evidence, remaining risks, and one copy-ready next prompt for bmad-close-work-item when complete. Never commit, push, or create a pull request automatically; require explicit user authorization."

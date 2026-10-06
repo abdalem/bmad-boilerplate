@@ -8,7 +8,7 @@ import {
 	stat,
 	writeFile,
 } from 'node:fs/promises';
-import { dirname, extname, join, relative, sep } from 'node:path';
+import { basename, dirname, extname, join, relative, sep } from 'node:path';
 
 const textExtensions = new Set([
 	'.md',
@@ -107,8 +107,12 @@ const isTextFile = (path: string) => {
 		return true;
 	}
 
-	const basename = path.split('/').pop() ?? '';
-	return basename.startsWith('.') || binaryLikeNames.has(basename);
+	const filename = basename(path);
+	return (
+		filename === 'Dockerfile' ||
+		filename.startsWith('.') ||
+		binaryLikeNames.has(filename)
+	);
 };
 
 const normalizeMatcher = (value: string) => value.split('/').join(sep);

@@ -49,3 +49,9 @@ and keeps timestamped backups.
 
 Network or source failures leave the target unchanged. The skill never commits
 automatically.
+
+## Shared Daily Delivery
+
+After adopting workflow capabilities, use `bmad-project-context adopt` to reconcile concise AGENTS.md instructions without replacing project-specific governance. Discover stable tracker, semantic type, Figma, automation, and release-note policy with `bmad-workflow-setup`. Later use project-context refresh, record, or audit when triggered.
+
+Preserve the existing technical architecture until an explicitly approved modernization Work Item changes it. New and adopted projects share actionable Work Item -> `bmad-build` -> `bmad-close-work-item`; publication refines new or unclear intent.

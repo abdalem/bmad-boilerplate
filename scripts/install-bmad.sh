@@ -10,7 +10,7 @@ USER_NAME="$(printenv BMAD_USER_NAME 2>/dev/null || true)"
 COMMUNICATION_LANGUAGE="$(printenv BMAD_COMMUNICATION_LANGUAGE 2>/dev/null || true)"
 DOCUMENT_OUTPUT_LANGUAGE="$(printenv BMAD_DOCUMENT_OUTPUT_LANGUAGE 2>/dev/null || true)"
 OUTPUT_FOLDER="$(printenv BMAD_OUTPUT_FOLDER 2>/dev/null || true)"
-[[ -n "$BMAD_INSTALLER" ]] || BMAD_INSTALLER="bmad-method@latest"
+[[ -n "$BMAD_INSTALLER" ]] || BMAD_INSTALLER="bmad-method@6.12.1"
 [[ -n "$BMAD_MODULES" ]] || BMAD_MODULES="bmm,tea,cis,wds"
 [[ -n "$BMAD_TOOLS" ]] || BMAD_TOOLS="claude-code,codex"
 [[ -n "$BMAD_CHANNEL" ]] || BMAD_CHANNEL="stable"
@@ -27,7 +27,7 @@ usage() {
     'Install or update the complete BMAD workflow pack.' \
     '' \
     '  --target <dir>                 Project directory (default: current directory)' \
-    '  --installer <pkg>              BMAD package (default: bmad-method@latest)' \
+    '  --installer <pkg>              BMAD package (default: bmad-method@6.12.1)' \
     '  --modules <ids>                BMAD modules (default: bmm,tea,cis,wds)' \
     '  --tools <ids>                  Agent tools (default: claude-code,codex)' \
     '  --channel <stable|next>        External BMAD module channel' \
@@ -107,6 +107,7 @@ set -- \
   --modules "$BMAD_MODULES" \
   --tools "$BMAD_TOOLS" \
   --yes \
+  --no-shims \
   --channel "$BMAD_CHANNEL" \
   --communication-language "$COMMUNICATION_LANGUAGE" \
   --document-output-language "$DOCUMENT_OUTPUT_LANGUAGE" \
@@ -126,13 +127,16 @@ if [[ "$SKIP_EXTERNAL_SKILLS" -eq 0 ]]; then
     local source="$1"
     local skill="$2"
     echo "Installing agent skill $skill from $source"
-    (cd "$TARGET_DIR" && npx --yes skills add "$source" --skill "$skill" -a codex -a claude-code -y </dev/null)
+    (cd "$TARGET_DIR" && npx --yes skills@1.7.0 add "$source" --skill "$skill" -a codex -a claude-code -y </dev/null)
   }
-  if ! install_skill vercel-labs/skills find-skills ||
-    ! install_skill github/awesome-copilot refactor ||
-    ! install_skill vercel-labs/agent-skills vercel-composition-patterns ||
-    ! install_skill vercel-labs/agent-skills vercel-react-best-practices ||
-    ! install_skill vercel-labs/agent-skills web-design-guidelines; then
+  if ! (while IFS=$'\t' read -r source skill; do
+    install_skill "$source" "$skill" || exit 1
+  done < <(node --input-type=module - "$SOURCE_PACK/pack.json" <<'NODE'
+import fs from 'node:fs';
+const pack = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+for (const entry of pack.externalSkills) console.log(`${entry.source}#${entry.revision}\t${entry.skill}`);
+NODE
+  );); then
     node "$PACK_TOOL" apply --source "$SOURCE_PACK" --target "$TARGET_DIR" --restore-after-upstream >/dev/null || true
     status incomplete external-skills "Upstream skill installation failed; rerun pnpm bmad:install."
     echo "Skill installation is incomplete. Internal assets remain available." >&2
@@ -159,18 +163,16 @@ if ! node "$PACK_TOOL" merge-help --source "$SOURCE_PACK" --target "$TARGET_DIR"
   exit 1
 fi
 
-if [[ "$SKIP_EXTERNAL_SKILLS" -eq 1 ]]; then
-  node "$PACK_TOOL" validate --target "$TARGET_DIR" || exit 1
-else
-  node "$PACK_TOOL" validate --target "$TARGET_DIR" --upstream || {
-    status incomplete validation "Installation validation failed; rerun pnpm bmad:install."
-    exit 1
-  }
-fi
+validate_args=(--target "$TARGET_DIR" --upstream)
+if [[ "$SKIP_EXTERNAL_SKILLS" -eq 1 ]]; then validate_args+=(--skip-external-skills); fi
+node "$PACK_TOOL" validate "${validate_args[@]}" || {
+  status incomplete validation "Installation validation failed; rerun pnpm bmad:install."
+  exit 1
+}
 
-status ready complete "BMAD workflow pack is ready. Use bmad-start-project for a new clone, bmad-update-project for an existing repository, or bmad-publish-work-item for normal delivery."
+status ready complete "BMAD workflow pack is ready. Use bmad-start-project for a new clone, bmad-update-project for an existing repository, or bmad-build for actionable delivery."
 echo "BMAD workflow pack is ready."
 echo "Start a new clone with bmad-start-project."
 echo "Compare an existing repository with bmad-update-project."
-echo "Start normal delivery with bmad-publish-work-item."
+echo "Start actionable delivery with bmad-build; refine unclear items with bmad-publish-work-item."
 echo "Run bmad-workflow-setup only for onboarding or explicit workflow reconfiguration."

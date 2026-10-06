@@ -147,7 +147,7 @@ Before applying, repeat the exact expected paths and commands and receive
 explicit confirmation.
 
 - Workflow wave: apply the workflow pack from the temporary checkout, then
-  merge help and validate. Preserve project policy and customizations.
+  merge help and validate. Invoke `bmad-project-context adopt` to reconcile concise repository governance while preserving project-specific AGENTS.md instructions; discover stable policy with `bmad-workflow-setup`. Use project-context refresh, record, or audit later when triggered. Preserve project policy and customizations.
 - Development-tooling wave: use `adopt-stack.sh` without force first. Treat
   unchanged workflow files as harmless overlap and review every proposal.
 - Topology wave: use migration dry run and apply only selected topology actions.
@@ -172,7 +172,7 @@ Run wave-specific checks plus unchanged baseline checks. Record:
 
 If verification fails, stop the upgrade sequence and recommend rollback or a
 focused remediation Work Item. If it passes, return one copy-ready prompt for
-the next approved wave or normal `bmad-publish-work-item` delivery.
+the next approved wave or normal `bmad-build` delivery for actionable Features, Issues, or Bugs; use `bmad-publish-work-item` for creation or refinement.
 
 Remove only the temporary comparison clone after its source revision and report
 references have been recorded. Do not remove adoption reports or backups.

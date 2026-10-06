@@ -67,6 +67,8 @@ For a custom manifest, let `init` create the nearest skeleton, edit only the
 confirmed package and deployment values, validate it, then scaffold. Explain
 files that `--force` will replace before running it in a non-clean clone.
 
+After the technical topology is established, invoke `bmad-project-context setup` to establish concise AGENTS.md governance, then discover stable policy with `bmad-workflow-setup`. Retain only hard-to-rediscover constraints, dangerous commands, domain pitfalls, and unusual verification. Use project-context refresh when conventions change, record for repeated mistakes, and audit to check drift.
+
 ## Stage 3: Select Product Definition Path
 
 Offer exactly two choices:

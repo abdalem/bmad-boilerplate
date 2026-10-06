@@ -1,14 +1,9 @@
 [workflow]
 
 activation_steps_append = [
-  "When invoked for a Work Item, determine its ID from the explicit request or contract path, normalize it to lowercase as work_item_id, read {project-root}/_bmad-output/planning-artifacts/{work_item_id}/work-item.md, and bind the spec workspace under that same planning folder. For project-level specification, preserve the upstream project-level output behavior without asking for a Work Item ID.",
+  "When invoked for a Work Item, determine its ID from the explicit request or contract path, normalize it to lowercase as work_item_id, read {project-root}/_bmad-output/planning-artifacts/{work_item_id}/work-item.md when present (otherwise use supplied intent), and bind the spec workspace under that same planning folder. For project-level specification, preserve the upstream project-level output behavior without asking for a Work Item ID.",
   "A Work Item spec refines behavior and acceptance only; it must not change binding Scope, Non-Goals, or Fixed Decisions without routing back to bmad-publish-work-item.",
   "Do not generate child delivery items unless the confirmed route explicitly requires Feature decomposition. At completion return one next prompt, normally bmad-build or the design gate still required by work-item.md.",
-]
-
-persistent_facts = [
-  "file:{project-root}/_bmad/custom/guidelines/kiss.md",
-  "Work Item artifacts are grouped by normalized ID. Planning contracts and routed preparation live under {project-root}/_bmad-output/planning-artifacts/{work_item_id}.",
 ]
 
 on_complete = "Return the completed spec path and one copy-ready next prompt. Never commit automatically."

@@ -11,7 +11,7 @@ Close one Work Item with verified acceptance, correct durable documentation, an 
 
 ## Rules
 
-- Resolve the exact Work Item ID before reading artifacts.
+- Resolve supplied intent and tracker identity or artifact paths before reading evidence. Explicit intent without a tracker ID can close using its Build spec; do not allocate identity or create a placeholder contract solely for closeout.
 - Read `_bmad/custom/project-workflow.toml` when present and use safe defaults when an older policy lacks new sections.
 - Inspect only ticket-scoped artifacts and the relevant code and documentation diff.
 - Never infer acceptance from implementation claims alone.
@@ -23,7 +23,7 @@ Close one Work Item with verified acceptance, correct durable documentation, an 
 
 ### 1. Resolve Evidence
 
-Inspect:
+When ticket-scoped paths exist, inspect only those paths (skip the artifact search when no identity or artifacts exist):
 
 ```sh
 find _bmad-output -path "*/<normalized-id>/*" -type f | sort
@@ -31,9 +31,9 @@ git status --short
 git diff --stat
 ```
 
-Read the Work Item contract, routed planning sources, implementation evidence, relevant tests, approved design references, and optional review findings. Do not load unrelated ticket artifacts.
+Read work-item.md when present; otherwise use the tracker Work Item, supplied intent, and Build spec as the acceptance boundary. Consume existing Build implementation, verification, integrated review, and repair evidence, relevant tests and approved design references. Do not require a local contract, duplicate review artifacts, or launch another generic review after Build. Do not load unrelated ticket artifacts.
 
-### 2. Verify The Contract
+### 2. Verify Acceptance
 
 Confirm:
 
@@ -61,7 +61,7 @@ Summarize durable facts; do not copy raw agent discussion or transient delivery 
 
 ### 4. Update External State
 
-When an external tracker is configured, update the item through the available integration. Otherwise return an exact manual closeout payload containing verification, durable documentation changes, remaining risks, and follow-ups.
+When an external tracker is configured and a specific external item identity is resolved, update that item through the available integration. A configured tracker alone does not identify an item; for identity-free intent do not invent or create one at closeout. Otherwise return an exact manual closeout payload containing verification, durable documentation changes, remaining risks, and follow-ups.
 
 Run business release-note support only when `[release_notes].enabled` is true.
 
@@ -87,4 +87,4 @@ Remove only folders that exist and only after explicit approval. The tracker own
 
 ## Response
 
-Report the Work Item ID and type, acceptance result, design verification when applicable, tracker result, durable documentation result, cleanup result or pending approval, remaining risks, and follow-up items.
+Report the Work Item ID and type when available (otherwise identify the supplied intent), acceptance result, design verification when applicable, tracker result, durable documentation result, cleanup result or pending approval, remaining risks, and follow-up items.

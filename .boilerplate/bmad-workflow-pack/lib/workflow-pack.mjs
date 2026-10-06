@@ -615,12 +615,62 @@ export const writeInstallStatus = async ({
 	return status;
 };
 
+export const getBmadCompatibility = (
+	installedVersion,
+	testedVersion = '6.12.1',
+) => {
+	const match = /^(\d+)\.(\d+)\.(\d+)(?:-[\w.-]+)?$/.exec(
+		installedVersion ?? '',
+	);
+	const status =
+		installedVersion === testedVersion
+			? 'SUPPORTED'
+			: match &&
+					(Number(match[1]) < 6 ||
+						(Number(match[1]) === 6 && Number(match[2]) < 12))
+				? 'INCOMPATIBLE'
+				: 'UNTESTED';
+	return { status, installedVersion: installedVersion ?? null, testedVersion };
+};
+
+// Retirement manifests may name old identifiers to remove them. Active routing may not.
+const deprecatedSkills = [
+	'bmad-checkpoint-preview',
+	'bmad-quick-dev',
+	'bmad-dev-story',
+	'bmad-create-story',
+	'bmad-create-epics-and-stories',
+	'bmad-sprint-status',
+	'bmad-market-research',
+	'bmad-domain-research',
+	'bmad-technical-research',
+	'bmad-create-prd',
+	'bmad-edit-prd',
+	'bmad-validate-prd',
+	'bmad-create-architecture',
+	'bmad-generate-project-context',
+];
+
 export const validateWorkflowPack = async ({
 	target,
 	requireUpstream = false,
+	skipExternalSkills = false,
 }) => {
+	const manifest = await readFile(
+		join(target, '_bmad/_config/manifest.yaml'),
+		'utf8',
+	).catch(() => '');
+	const installedTools = [
+		...(manifest.match(/^ides:\s*\n((?:[ \t]+.*\n?)*)/m)?.[1] ?? '').matchAll(
+			/^\s+-\s+([\w-]+)/gm,
+		),
+	].map(match => match[1]);
+	const toolRoots = installedTools.length
+		? installedTools
+				.filter(tool => ['claude-code', 'codex'].includes(tool))
+				.map(tool => (tool === 'codex' ? '.agents' : '.claude'))
+		: ['.agents', '.claude'];
 	const required = [
-		'_bmad/custom/guidelines/kiss.md',
 		'_bmad/custom/bmad-build.toml',
 		'docs/bmad-project-workflow/index.md',
 		'docs/bmad-project-workflow/prompts/product-definition.md',
@@ -641,13 +691,65 @@ export const validateWorkflowPack = async ({
 			'_bmad/tea',
 			'_bmad/cis',
 			'_bmad/wds',
-			'.agents/skills/find-skills/SKILL.md',
-			'.agents/skills/refactor/SKILL.md',
-			'.agents/skills/vercel-composition-patterns/SKILL.md',
-			'.agents/skills/vercel-react-best-practices/SKILL.md',
-			'.agents/skills/web-design-guidelines/SKILL.md',
+			'_bmad/_config/manifest.yaml',
 		);
+		for (const tool of toolRoots) {
+			for (const skill of ['bmad-build', 'bmad-build-auto', 'bmad-walkthrough'])
+				required.push(`${tool}/skills/${skill}/SKILL.md`);
+		}
+		if (!skipExternalSkills) {
+			for (const entry of JSON.parse(
+				await readFile(
+					join(target, '.boilerplate/bmad-workflow-pack/pack.json'),
+					'utf8',
+				),
+			).externalSkills)
+				for (const tool of toolRoots)
+					required.push(`${tool}/skills/${entry.skill}/SKILL.md`);
+		}
 	}
+	const packRoot = join(target, '.boilerplate/bmad-workflow-pack');
+	const pack = await readJson(join(packRoot, 'pack.json'), {
+		bmad: { testedVersion: '6.12.1' },
+	});
+	const activeFiles = [join(packRoot, 'help-overlay.csv')];
+	const metadata = await readJson(join(packRoot, 'managed-files.json'), {
+		groups: [],
+	});
+	for (const group of metadata.groups) {
+		const sourceRoot = join(packRoot, group.source);
+		for (const source of await listFiles(sourceRoot))
+			for (const targetRoot of group.targets)
+				activeFiles.push(
+					join(target, targetRoot, relative(sourceRoot, source)),
+				);
+	}
+	for (const directory of ['bmad-custom', 'docs', 'internal-skills'])
+		activeFiles.push(...(await listFiles(join(packRoot, directory))));
+	for (const path of activeFiles) {
+		if (!(await exists(path))) continue;
+		const content = await readFile(path, 'utf8');
+		const retired = deprecatedSkills.find(skill =>
+			new RegExp(`\\b${skill}\\b`).test(content),
+		);
+		if (retired)
+			throw new Error(
+				`Managed asset references deprecated skill ${retired}: ${relative(target, path)}`,
+			);
+	}
+	const installation =
+		manifest.match(/^installation:\s*\n((?:[ \t]+.*\n?)*)/m)?.[1] ?? '';
+	const installedVersion =
+		installation.match(/^\s+version:\s*['"]?([\w.-]+)/m)?.[1] ?? null;
+	const compatibility = getBmadCompatibility(
+		installedVersion,
+		pack.bmad.testedVersion,
+	);
+	if (requireUpstream && compatibility.status === 'INCOMPATIBLE')
+		throw new Error(
+			`INCOMPATIBLE BMAD ${installedVersion}; tested baseline is ${compatibility.testedVersion}. Rerun pnpm bmad:install.`,
+		);
+
 	const missing = [];
 	for (const path of required)
 		if (!(await exists(join(target, path)))) missing.push(path);
@@ -659,5 +761,9 @@ export const validateWorkflowPack = async ({
 		throw new Error(
 			`Workflow pack validation failed; missing: ${missing.join(', ')}`,
 		);
-	return { policyStatus: policy ? 'configured' : 'missing', policy };
+	return {
+		policyStatus: policy ? 'configured' : 'missing',
+		policy,
+		compatibility,
+	};
 };

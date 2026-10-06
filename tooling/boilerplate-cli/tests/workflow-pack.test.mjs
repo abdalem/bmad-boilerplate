@@ -138,10 +138,16 @@ const createProductInputFixture = async ({ reviewed = false } = {}) => {
 
 test('workflow pack declares exact BMAD modules and upstream skill sources', async () => {
 	const pack = JSON.parse(await readFile(join(packRoot, 'pack.json'), 'utf8'));
-	assert.equal(pack.bmad.defaultInstaller, 'bmad-method@latest');
+	assert.equal(pack.version, '3.0.0');
+	assert.equal(pack.bmad.testedVersion, '6.12.1');
+	assert.equal(pack.bmad.defaultInstaller, 'bmad-method@6.12.1');
+	assert.equal(pack.bmad.latestInstaller, 'bmad-method@latest');
 	assert.equal(pack.bmad.previewInstaller, 'bmad-method@next');
 	assert.deepEqual(pack.bmad.modules, ['bmm', 'tea', 'cis', 'wds']);
 	assert.deepEqual(pack.bmad.tools, ['claude-code', 'codex']);
+	assert.equal(pack.skillsInstaller, 'skills@1.7.0');
+	for (const entry of pack.externalSkills)
+		assert.match(entry.revision, /^[a-f0-9]{40}$/, entry.skill);
 	assert.deepEqual(
 		pack.externalSkills.map(entry => `${entry.source}/${entry.skill}`),
 		[
@@ -316,6 +322,7 @@ test('managed adaptive assets contain no retired delivery routes', async () => {
 		'bmad-create-story',
 		'bmad-dev-story',
 		'bmad-sprint-planning',
+		'bmad-checkpoint-preview',
 	]) {
 		assert.equal(combined.includes(retired), false, retired);
 	}
