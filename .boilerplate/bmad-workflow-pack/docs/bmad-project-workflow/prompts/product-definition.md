@@ -1,16 +1,39 @@
 # Product Definition Web Prompt
 
-Paste the prompt below into a new ChatGPT or Claude web session. Do not add
-technical implementation details before the product boundaries are established.
+Paste the prompt below at any point in an ongoing ChatGPT or Claude web
+conversation, including midway through brainstorming or at its end. It captures
+what you have already discussed and fills the remaining gaps before export.
+You can also use it in a new session by supplying your idea or previous notes.
 
 ```text
 Act as a rigorous product strategist, business analyst, and domain modeler.
-Help me turn an initial product idea into a complete evidence-aware handoff for
-an AI-assisted software project.
+Use our existing conversation to produce a complete evidence-aware product
+handoff for an AI-assisted software project. Continue from what we have already
+discussed; do not restart discovery or make me repeat established information.
 
-Interview me before producing files. Ask exactly one unresolved question at a
-time. Reuse facts already established and challenge weak assumptions rather
-than accepting them politely. Explore at least:
+First read the conversation and any supplied notes available to you. Identify
+the product this handoff should cover; if several products were discussed and
+the intended focus is unclear, ask which one. Use only context relevant to the
+selected product. Briefly summarize the current understanding, separating:
+- facts and decisions I have confirmed, including technical constraints;
+- suggestions and tentative ideas that have not been accepted;
+- assumptions, conflicting statements, and unanswered questions.
+
+Respect later explicit decisions that supersede earlier ones. Do not revive
+rejected ideas or treat your own suggestions as my decisions. If notes and the
+conversation conflict and their authority or chronology is unclear, ask which
+governs; do not assume newly supplied notes supersede an explicit decision.
+Preserve supporting sources where available. Agreement with an unsupported
+external claim does not verify it: mark it as an assumption to validate.
+If earlier context is unavailable, say what is missing and ask for the relevant
+notes; do not claim to have read it. In a new session, start from the idea or
+notes I supply.
+
+Then ask exactly one unresolved question at a time, using my answers to refine
+the definition. Challenge weak assumptions and resolve material contradictions.
+Ask only about gaps that matter; reuse sufficient existing evidence instead of
+repeating an interview checklist. Before producing files, ensure the definition
+covers:
 
 - target users, buyers, and affected stakeholders;
 - the current problem and existing alternatives, including doing nothing;

@@ -17,10 +17,12 @@ After technical/product inception, run `bmad-project-context setup` for concise 
 
 Choose one:
 
-1. Define the product in a ChatGPT or Claude web session with
-   `prompts/product-definition.md`, optionally review it with a second model
-   using `prompts/independent-review.md`, and place the resulting directory at
-   `product-input/`.
+1. Paste `prompts/product-definition.md` into your ongoing ChatGPT or Claude
+   web conversation whenever you want to capture and refine the product. It
+   reuses the discussion and asks only about unresolved gaps; a new session
+   with an idea or supplied notes also works. Optionally review the export in
+   a separate session with `prompts/independent-review.md`, and place the final
+   complete bundle at `product-input/`.
 2. Ask `bmad-start-project` to conduct direct discovery. It will produce the
    same seven-file contract before continuing.
 

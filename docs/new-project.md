@@ -28,6 +28,11 @@ Use the ready-to-copy prompts:
 - [Product definition](bmad-project-workflow/prompts/product-definition.md)
 - [Independent review](bmad-project-workflow/prompts/independent-review.md)
 
+Paste the product-definition prompt at any point in your ongoing ChatGPT or
+Claude discussion. It captures established decisions and constraints, then asks
+about remaining gaps before you approve the export. A new session with your
+idea or previous notes also works. Use a separate session for independent review.
+
 Place the final complete export at repository-root `product-input/`. When an
 independent review is used, copy only its complete replacement bundle. Do not
 mix original and reviewed files.
